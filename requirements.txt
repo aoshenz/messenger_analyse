@@ -1,0 +1,10 @@
+wheel
+pandas
+numpy
+matplotlib
+seaborn
+jinja2
+wordcloud
+numpy
+pandas
+pyarrow

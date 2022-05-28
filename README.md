@@ -37,6 +37,6 @@
 - [Parse FB JSON files to tables](https://github.com/numbersprotocol/fb-json2table)
 
 ### Improvements
-- logging
+- logging (i.e. printing to console in a nice format)
 - error handling
 - OOP

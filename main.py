@@ -31,10 +31,10 @@ top_senders = sp.rank_msgs(
     is_direct_msg=1)
 print(top_senders)
 
-# sp.rank_msgs_barh(
-    # df, 
-    # top_n=20,
-    # is_direct_msg=1)
+sp.rank_msgs_barh(
+    df, 
+    top_n=20,
+    is_direct_msg=1)
 
 
 
@@ -92,10 +92,13 @@ print(top_senders)
 # Samples
 # =================================================================
 
-sp.first_msg(df)
+# sp.first_msg(df)
 
 
 
 
 # Output results
-sp.outputresults()
+
+info = sp.output_info()
+
+sp.output_html(user_info = info)

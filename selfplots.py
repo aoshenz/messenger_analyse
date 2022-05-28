@@ -10,6 +10,7 @@ import config as c
 from wordcloud import WordCloud
 import os
 import pkg_resources
+from jinja2 import Template
 
 
 pd.options.mode.chained_assignment = None
@@ -198,11 +199,28 @@ def first_msg(data, include_participants=None):
 
 
 # rendering
-def outputresults():
+def output_html(**kwargs):
     
     output_folder = pathlib.Path(__file__).parent.absolute() / "output"
     os.makedirs(output_folder, exist_ok=True)
+    output_path = os.path.join(output_folder, "output_id.html")
 
-    os.system(f"open {output_folder}")
+    template_contents = pkg_resources.resource_string(
+        __name__, "templates/template.html"
+    )
+    template = Template(template_contents.decode("utf-8"))
 
-def render_template():
+    output_str = template.render(**kwargs)
+    print(output_str)
+
+    with open(output_path, "w") as f:
+        f.write(output_str)
+
+    # os.system(f"open {output_path}")
+
+def output_info():
+    info = {
+        "name": c.YOUR_FULL_NAME
+    }
+
+    return info
