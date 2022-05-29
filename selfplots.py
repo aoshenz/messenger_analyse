@@ -1,5 +1,6 @@
 from xml.etree.ElementInclude import include
 import matplotlib.pyplot as plt
+import plotly.express as px
 import pathlib
 import pandas as pd
 import json
@@ -97,8 +98,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     # format dates
     data['zzdate'] = data['date'].dt.date
 
-    fig, ax = plt.subplots()
-
+    plot_data = pd.DataFrame()
     if include_participants != None:
         for person in include_participants:
             temp = data[data['sender_name'].str.lower().str.contains(person.lower())]
@@ -108,24 +108,20 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             # fill in 0 value for dates with 0 messages
             date_range = pd.date_range(temp.index.min(), temp.index.max())
             temp = temp.reindex(date_range, fill_value=0)
-            temp = temp.reset_index().rename(columns={'index': 'zzdate'}) #TODO: how to do these steps without resetting index?
+            temp = temp.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
 
-            temp['content_ma'] = temp['content'].rolling(30).mean()
+            temp['Number of Messages'] = temp['content'].rolling(30).mean()
+            temp['Friend'] = person
 
-            ax.plot(temp['zzdate'], temp['content_ma'], label=person)
+            plot_data = plot_data.append(temp)
 
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Number of messages')
-    ax.set_title('Messages over time')
-
-    ax.grid(axis='y', alpha=0.5)
-    ax.grid(axis='x', alpha=0.5)
-
-    years = mdates.YearLocator()   # every year
-    ax.xaxis.set_major_locator(years)
-
-    plt.legend()
-    plt.show()
+    fig = px.line(
+            plot_data,
+            x="Date",
+            y="Number of Messages",
+            color="Friend",
+            title="Messages over time by friend")
+    return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def rank_msgs(data, top_n=20, is_direct_msg=None):
 
@@ -159,17 +155,9 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     # subset table and bar plot
     summary = summary[summary['sender_name'].isin(top_senders)]
 
-    fig, ax = plt.subplots()
+    fig = px.bar(summary, x="content", y="sender_name", orientation='h')
 
-    ax.barh(summary['sender_name'], summary['content'])
-    ax.invert_yaxis()
-
-    ax.set_xlabel('Number of messages')
-    ax.set_ylabel('Friend')
-    ax.set_title('Number of messages from friend')
-
-    ax.grid(axis='x', alpha=0.5)
-    plt.show()
+    return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def wordcloud_plot(data):
     
@@ -186,16 +174,17 @@ def wordcloud_plot(data):
 
 def first_msg(data, include_participants=None):
 
-    # if include_participants == None:
-    #     include_participants = rank_msgs(data, top_n=20, is_direct_msg=1)
+    if include_participants == None:
+        include_participants = rank_msgs(data, top_n=20, is_direct_msg=1)
 
-    # data = data[data['sender_name'].isin(include_participants)]
+    data = data[
+        (data['sender_name'].isin(include_participants)) &
+        (data['is_direct_msg']==1) &
+        (data['content']!='You are now connected on Messenger')]
 
-    # first_msg = data.sort_values('date').groupby('sender_name', as_index=False).first()
+    first_msg = data.sort_values('date').groupby('sender_name', as_index=False).first()
 
-    # print(first_msg)
-
-    print(data[data['sender_name'] == 'Ben S Foo'].sort_values('date'))
+    return first_msg.to_html(classes='mystyle')
 
 
 # rendering
@@ -208,19 +197,12 @@ def output_html(**kwargs):
     template_contents = pkg_resources.resource_string(
         __name__, "templates/template.html"
     )
+
     template = Template(template_contents.decode("utf-8"))
 
     output_str = template.render(**kwargs)
-    print(output_str)
 
     with open(output_path, "w") as f:
         f.write(output_str)
 
-    # os.system(f"open {output_path}")
-
-def output_info():
-    info = {
-        "name": c.YOUR_FULL_NAME
-    }
-
-    return info
+    os.system(f"open {output_path}")

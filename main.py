@@ -31,12 +31,10 @@ top_senders = sp.rank_msgs(
     is_direct_msg=1)
 print(top_senders)
 
-sp.rank_msgs_barh(
+bar_chart = sp.rank_msgs_barh(
     df, 
     top_n=20,
     is_direct_msg=1)
-
-
 
 
 # By day of the week
@@ -62,13 +60,10 @@ sp.rank_msgs_barh(
 # this double counts it as all participants show up for each msg.... 
 # need to just capture sender name i think...
 
-# sp.time_plot(
-#     df,
-#     include_participants=top_senders,
-#     is_direct_msg=None)
-
-
-
+time_series = sp.time_plot(
+    df,
+    include_participants=top_senders,
+    is_direct_msg=None)
 
 
 # Message length by time of the d
@@ -92,13 +87,20 @@ sp.rank_msgs_barh(
 # Samples
 # =================================================================
 
-# sp.first_msg(df)
+first_msg = sp.first_msg(df)
 
 
 
 
 # Output results
 
-info = sp.output_info()
+info = {
+    "name": c.YOUR_FULL_NAME,
+    "time_series": time_series,
+    "bar_chart": bar_chart,
+    "first_msg": first_msg
+}
+
+
 
 sp.output_html(user_info = info)

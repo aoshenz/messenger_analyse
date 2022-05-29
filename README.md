@@ -40,3 +40,4 @@
 - logging (i.e. printing to console in a nice format)
 - error handling
 - OOP
+- interactive plots using dash (e.g. with dropdowns, filters)

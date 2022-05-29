@@ -1,9 +1,23 @@
 <!DOCTYPE html>
 <html>
-<body>
 
-<h1>My First Heading: {{ user_info.name }} </h1>
-<p>My first paragraph.</p>
+    <head><title>Messenger data: {{ user_info.name }}</title></head>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap"
+        rel="stylesheet"
+    />
+
+    <body>
+
+    <p>My first paragraph.</p>
+
+    <div class="content">
+    {{ user_info.bar_chart }}
+
+    {{ user_info.time_series }}
+
+    {{ user_info.first_msg }}
+    </div>
 
 </body>
 </html>
