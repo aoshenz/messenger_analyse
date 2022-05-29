@@ -42,3 +42,6 @@
 - OOP
 - interactive plots using dash (e.g. with dropdowns, filters)
 - HTML improvements (e.g. tabs, formatting tables)
+
+### Current limitations
+- Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)

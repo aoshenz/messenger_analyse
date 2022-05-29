@@ -31,11 +31,8 @@ top_senders = sp.rank_msgs(
     is_direct_msg=1)
 print(top_senders)
 
-bar_chart = sp.rank_msgs_barh(
-    df, 
-    top_n=20,
-    is_direct_msg=1)
-
+bar_chart_dir_1 = sp.rank_msgs_barh(df, is_direct_msg=1) 
+bar_chart_dir_0 = sp.rank_msgs_barh(df, is_direct_msg=0)
 
 # By day of the week
 plot_hour_day = sp.plot_hour_day(df)
@@ -87,7 +84,8 @@ info = {
     "data_from": c.DATA_FROM,
     "data_til": c.DATA_TIL,
     "time_series": time_series,
-    "bar_chart": bar_chart,
+    "bar_chart_dir_1": bar_chart_dir_1,
+    "bar_chart_dir_0": bar_chart_dir_0,
     # "first_msg": first_msg,
     "plot_hour_day": plot_hour_day
 }

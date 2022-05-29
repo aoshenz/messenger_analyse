@@ -114,7 +114,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             temp = temp.reindex(date_range, fill_value=0)
             temp = temp.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
 
-            temp['Number of Messages'] = temp['content'].rolling(30).mean()
+            temp['# of Messages'] = temp['content'].rolling(30).mean()
             temp['Friend'] = person
 
             plot_data = plot_data.append(temp)
@@ -122,8 +122,8 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     fig = px.line(
             plot_data,
             x="Date",
-            y="Number of Messages",
-            color="Friend"
+            y="# of Messages",
+            color="Friend")
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -154,10 +154,6 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
     summary = summary.head(top_n) # TODO: better way to keep top n
-    top_senders = list(summary['sender_name'].unique())
-
-    # subset table and bar plot
-    summary = summary[summary['sender_name'].isin(top_senders)]
 
     fig = px.bar(
             summary,
