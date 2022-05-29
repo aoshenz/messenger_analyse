@@ -66,3 +66,12 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
 
     ax.grid(axis='x', alpha=0.5)
     plt.show()
+
+
+def plot_hist(x_var, title, x_label, y_label='Frequency', bins=100):
+    fig, ax = plt.subplots()
+    ax.hist(x_var, bins=10)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    plt.show()

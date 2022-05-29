@@ -41,3 +41,4 @@
 - error handling
 - OOP
 - interactive plots using dash (e.g. with dropdowns, filters)
+- HTML improvements (e.g. tabs, formatting tables)

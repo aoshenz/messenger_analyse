@@ -1,3 +1,4 @@
+from unicodedata import category
 from xml.etree.ElementInclude import include
 import matplotlib.pyplot as plt
 import plotly.express as px
@@ -16,14 +17,6 @@ from jinja2 import Template
 
 pd.options.mode.chained_assignment = None
 pd.set_option('display.max_rows', 100)
-
-def plot_hist(x_var, title, x_label, y_label='Frequency', bins=100):
-    fig, ax = plt.subplots()
-    ax.hist(x_var, bins=10)
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.set_title(title)
-    plt.show()
 
 
 def import_data(inbox_folder, local_file=None, create_new_file=False, limit_files=None):
@@ -130,8 +123,8 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             plot_data,
             x="Date",
             y="Number of Messages",
-            color="Friend",
-            title="Messages over time by friend")
+            color="Friend"
+
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def rank_msgs(data, top_n=20, is_direct_msg=None):
@@ -179,21 +172,26 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
-def plot_day_of_week(data):
-    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+def plot_hour_day(data):
 
     data['day'] = data['date'].dt.day_name()
-    df_msg_count = data.groupby('day')['content'].count().loc[days_order]
+    data['hour'] = data['date'].dt.hour
+
+    df_msg_count = data.groupby(['hour', 'day'], as_index=False)['content'].count()
 
     fig = px.bar(
         df_msg_count,
-        x=df_msg_count.index,
+        x='hour',
         y="content",
+        color="day",
         labels={
-            "day": "Day",
-            "content": "# of messages"
-        })
-    
+            "hour": "Hour",
+            "content": "# of messages",
+            "day": "Day"
+        },
+        category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
+    fig.update_xaxes(dtick=1)
+
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def wordcloud_plot(data):

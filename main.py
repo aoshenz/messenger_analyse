@@ -38,7 +38,7 @@ bar_chart = sp.rank_msgs_barh(
 
 
 # By day of the week
-day_of_week_plot = sp.plot_day_of_week(df)
+plot_hour_day = sp.plot_hour_day(df)
 
 
 
@@ -89,7 +89,7 @@ info = {
     "time_series": time_series,
     "bar_chart": bar_chart,
     # "first_msg": first_msg,
-    "day_of_week": day_of_week_plot
+    "plot_hour_day": plot_hour_day
 }
 
 
