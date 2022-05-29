@@ -90,6 +90,17 @@ def import_data(inbox_folder, local_file=None, create_new_file=False, limit_file
 
     return(df)
 
+def apply_adjustments(data):
+
+    if (c.DATA_FROM != None) & (c.DATA_TIL != None):
+        return data[(data['date'] >= c.DATA_FROM) & (data['date'] <= c.DATA_TIL)]
+    elif c.DATA_FROM != None:
+        return data[data['date'] >= c.DATA_FROM]
+    elif c.DATA_TIL != None:
+        return data[data['date'] >= c.DATA_TIL]
+    else:
+        return data
+
 def time_plot(data, include_participants=None, is_direct_msg=None):
 
     if is_direct_msg != None:
@@ -155,8 +166,34 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     # subset table and bar plot
     summary = summary[summary['sender_name'].isin(top_senders)]
 
-    fig = px.bar(summary, x="content", y="sender_name", orientation='h')
+    fig = px.bar(
+            summary,
+            x="content",
+            y="sender_name",
+            orientation='h',
+            labels={
+                "content": "# of messages",
+                "sender_name": "Friend"
+            })
+    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
 
+    return fig.to_html(full_html=False, include_plotlyjs=True)
+
+def plot_day_of_week(data):
+    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    data['day'] = data['date'].dt.day_name()
+    df_msg_count = data.groupby('day')['content'].count().loc[days_order]
+
+    fig = px.bar(
+        df_msg_count,
+        x=df_msg_count.index,
+        y="content",
+        labels={
+            "day": "Day",
+            "content": "# of messages"
+        })
+    
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def wordcloud_plot(data):
@@ -177,10 +214,14 @@ def first_msg(data, include_participants=None):
     if include_participants == None:
         include_participants = rank_msgs(data, top_n=20, is_direct_msg=1)
 
+    standard_fb_msg = [
+        "You can now message and call each other and see info like Active Status and when you've read messages.",
+        "You are now connected on Messenger"]
+
     data = data[
         (data['sender_name'].isin(include_participants)) &
         (data['is_direct_msg']==1) &
-        (data['content']!='You are now connected on Messenger')]
+        (~data['content'].isin(standard_fb_msg))]
 
     first_msg = data.sort_values('date').groupby('sender_name', as_index=False).first()
 

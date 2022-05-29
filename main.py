@@ -10,15 +10,15 @@ import config as c
 msg_path = pathlib.Path(__file__).parent.absolute() / c.MSG_ROOT_FOLDER
 local_copy_file = pathlib.Path(__file__).parent.absolute() / c.LOCAL_COPY
 
-# other configs
-custom_params = {"axes.spines.right": False, "axes.spines.top": False, "figure.figsize": (12,6)}
-sns.set_theme(style="ticks", rc=custom_params)
-
 df = sp.import_data(
     msg_path,
     local_copy_file,
     create_new_file=False, # toggle to True if you need to update
     limit_files=None)
+
+# Apply global data adjustments
+df = sp.apply_adjustments(df)
+
 
 
 # Number of messages over time (over all time, by day, by year)
@@ -27,7 +27,7 @@ df = sp.import_data(
 # Rank top senders
 top_senders = sp.rank_msgs(
     df, 
-    top_n=5,
+    top_n=10,
     is_direct_msg=1)
 print(top_senders)
 
@@ -38,19 +38,7 @@ bar_chart = sp.rank_msgs_barh(
 
 
 # By day of the week
-# days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-# df['day'] = df['date'].dt.day_name()
-# df_msg_count = df.groupby('day')['content'].count().loc[days_order]
-
-# fig, ax = plt.subplots()
-# ax.bar(
-#     df_msg_count.index,
-#     df_msg_count)
-# ax.set_xlabel('Day of the week')
-# ax.set_ylabel('Count')
-# ax.set_title('Number of messages by day of the week')
-# plt.show()
+day_of_week_plot = sp.plot_day_of_week(df)
 
 
 
@@ -96,9 +84,12 @@ first_msg = sp.first_msg(df)
 
 info = {
     "name": c.YOUR_FULL_NAME,
+    "data_from": c.DATA_FROM,
+    "data_til": c.DATA_TIL,
     "time_series": time_series,
     "bar_chart": bar_chart,
-    "first_msg": first_msg
+    # "first_msg": first_msg,
+    "day_of_week": day_of_week_plot
 }
 
 

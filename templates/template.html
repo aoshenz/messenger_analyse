@@ -7,12 +7,16 @@
         rel="stylesheet"
     />
 
-    <body>
+<body>
 
-    <p>My first paragraph.</p>
+    <h1>Messenger analysis for {{ user_info.name }}</h1>
+    <p>Data between {{ user_info.data_from }} and {{ user_info.data_til }}</p>
+    <p>Summary stats go here.</p>
 
     <div class="content">
     {{ user_info.bar_chart }}
+
+    {{ user_info.day_of_week }}
 
     {{ user_info.time_series }}
 
