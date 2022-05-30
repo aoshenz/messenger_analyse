@@ -13,11 +13,17 @@ from wordcloud import WordCloud
 import os
 import pkg_resources
 from jinja2 import Template
+from datetime import datetime
 
 
 pd.options.mode.chained_assignment = None
 pd.set_option('display.max_rows', 100)
 
+def check_data_exists():
+
+    # Check paths
+    # Check required files exist
+    None
 
 def import_data(inbox_folder, local_file=None, create_new_file=False, limit_files=None):
     """Import messenger data."""
@@ -94,6 +100,22 @@ def apply_adjustments(data):
     else:
         return data
 
+def report_details(data):
+
+    # Run time
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Earliest data date
+    date_min = data['date'].dt.date.min()
+
+    # Latest data date
+    date_max = data['date'].dt.date.max()
+
+    return {
+        "now": now,
+        "date_min": date_min,
+        "date_max": date_max}
+
 def time_plot(data, include_participants=None, is_direct_msg=None):
 
     if is_direct_msg != None:
@@ -137,7 +159,7 @@ def rank_msgs(data, top_n=20, is_direct_msg=None):
 
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
-    summary = summary.head(top_n) # TODO: better way to keep top n
+    summary = summary.head(top_n)
     top_senders = list(summary['sender_name'].unique())
 
     return top_senders
@@ -153,7 +175,11 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
 
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
-    summary = summary.head(top_n) # TODO: better way to keep top n
+    summary = summary.head(top_n)
+    top_senders = list(summary['sender_name'].unique())
+
+    #TODO: think about changing this to DMs only and use participants so we can color 
+    # "if_from_me" in the plot
 
     fig = px.bar(
             summary,

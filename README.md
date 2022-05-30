@@ -45,3 +45,4 @@
 
 ### Current limitations
 - Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)
+- Unsure how group chats are structured where participants can come and go

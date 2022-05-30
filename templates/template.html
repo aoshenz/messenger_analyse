@@ -1,28 +1,70 @@
 <!DOCTYPE html>
 <html>
 
-    <head><title>Messenger data: {{ user_info.name }}</title></head>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap"
-        rel="stylesheet"
-    />
+    <head>
+        <title>Messenger analysis: {{ user_info.name }}</title>
+        <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+
+    </head>
 
 <body>
 
     <h1>Messenger analysis for {{ user_info.name }}</h1>
-    <p>Data between {{ user_info.data_from }} and {{ user_info.data_til }}</p>
+    <p>Using data between {{ report_details.date_min }} and {{ report_details.date_max }} (inclusive).</p>
     <p>Summary stats go here.</p>
 
+    <div class="tg-wrap"><table>
+        <tbody>
+          <tr>
+            <td>Date you joined Facebook</td>
+            <td>?</td>
+          </tr>
+          <tr>
+            <td>Messages sent</td>
+            <td>?</td>
+          </tr>
+          <tr>
+            <td>Messages received</td>
+            <td>?</td>
+          </tr>
+          <tr>
+            <td>Average words per message</td>
+            <td>?</td>
+          </tr>
+        </tbody>
+        </table>
+    </div>
+
     <div class="content">
-    {{ user_info.bar_chart_dir_1 }}
     
-    {{ user_info.bar_chart_dir_0 }}
+    Direct messages
+    {{ user_info.bar_chart_dir_1 }}
 
     {{ user_info.plot_hour_day }}
 
     {{ user_info.time_series }}
 
     {{ user_info.first_msg }}
+
+    </div>
+
+    <h2>Analysis details:</h2>
+    <div class="tg-wrap"><table>
+        <tbody>
+          <tr>
+            <td>Run date</td>
+            <td>{{ report_details.now }}</td>
+          </tr>
+          <tr>
+            <td>Data from</td>
+            <td>{{ report_details.date_min }}</td>
+          </tr>
+          <tr>
+            <td>Data until</td>
+            <td>{{ report_details.date_max }}</td>
+          </tr>
+        </tbody>
+        </table>
     </div>
 
 </body>
