@@ -5,7 +5,7 @@ import config as c
 
 # automated paths TODO: put these lines of code inside the function?
 msg_path = pathlib.Path(__file__).parent.absolute() / c.MSG_ROOT_FOLDER
-local_copy_file = pathlib.Path(__file__).parent.absolute() / c.LOCAL_COPY
+local_copy_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
 
 df = sp.import_data(
     msg_path,

@@ -46,3 +46,9 @@
 ### Current limitations
 - Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)
 - Unsure how group chats are structured where participants can come and go
+
+
+### Instructions
+1. Clone repo
+2. Within 'messenger_analyse', create a folder called 'personal_data'. Unzip facebook data here.
+3. Create a virtual environment and install packages from `requirements.txt`

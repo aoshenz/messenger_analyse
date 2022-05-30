@@ -23,12 +23,16 @@ def check_data_exists():
 
     # Check paths
     # Check required files exist
+    # Check config formats
+    # Output in log
     None
 
 def import_data(inbox_folder, local_file=None, create_new_file=False, limit_files=None):
     """Import messenger data."""
 
     start_time = time.time()
+
+    local_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
 
     if pathlib.Path(local_file).is_file() & create_new_file==False:
         print(f"Local copy detected at: {local_file}")
