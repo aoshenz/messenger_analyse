@@ -27,12 +27,15 @@ def check_data_exists():
     # Output in log
     None
 
-def import_data(inbox_folder, local_file=None, create_new_file=False, limit_files=None):
-    """Import messenger data."""
+def import_data(create_new_file=False, limit_files=None):
+    """
+    Import messenger data, drop unused columns, add flags and saves an output for future runs.
+    """
 
     start_time = time.time()
 
     local_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
+    inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
 
     if pathlib.Path(local_file).is_file() & create_new_file==False:
         print(f"Local copy detected at: {local_file}")
@@ -82,7 +85,8 @@ def import_data(inbox_folder, local_file=None, create_new_file=False, limit_file
     df['num_participants'] = df['participants'].str.split(",").str.len()
 
     # flags
-    df['is_from_me'] = np.where(df['sender_name'] == c.YOUR_FULL_NAME, 1, 0)
+    name = full_name()
+    df['is_from_me'] = np.where(df['sender_name'] == name, 1, 0)
     df['is_direct_msg'] = np.where(df['num_participants'] == 2, 1, 0)
 
     print(f"Messages imported: {len(df)}")
@@ -94,6 +98,7 @@ def import_data(inbox_folder, local_file=None, create_new_file=False, limit_file
     return(df)
 
 def apply_adjustments(data):
+    """Filters data based on dates selected in config."""
 
     if (c.DATA_FROM != None) & (c.DATA_TIL != None):
         return data[(data['date'] >= c.DATA_FROM) & (data['date'] <= c.DATA_TIL)]
@@ -104,7 +109,23 @@ def apply_adjustments(data):
     else:
         return data
 
+def full_name():
+    """Returns your full name."""
+
+    inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
+
+    for path in pathlib.Path(inbox_folder).rglob('profile_information.json'):
+        with open(path) as f:
+            data = json.load(f)
+    
+    return data["profile_v2"]['name']['full_name']
+
+
 def report_details(data):
+    """Dictionary of report details used for analysis output."""
+
+    # Name
+    name = full_name()
 
     # Run time
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -116,11 +137,13 @@ def report_details(data):
     date_max = data['date'].dt.date.max()
 
     return {
+        "full_name": name,
         "now": now,
         "date_min": date_min,
         "date_max": date_max}
 
 def time_plot(data, include_participants=None, is_direct_msg=None):
+    """Time series by friends."""
 
     if is_direct_msg != None:
         data = data[data['is_direct_msg']==is_direct_msg]
@@ -154,12 +177,14 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def rank_msgs(data, top_n=20, is_direct_msg=None):
+    """Return a list of top n friends by number of messages."""
 
     if is_direct_msg != None:
         data = data[data['is_direct_msg']==is_direct_msg]
 
     # exclude yourself TODO: change so that it reads from user profile automatically
-    data = data[data['sender_name']!=c.YOUR_FULL_NAME]
+    name = full_name()
+    data = data[data['sender_name']!=name]
 
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
@@ -170,12 +195,14 @@ def rank_msgs(data, top_n=20, is_direct_msg=None):
 
 #TODO: need to refactor this function
 def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
+    """Plot a horizontal bar chart by friend and number of messages."""
 
     if is_direct_msg != None:
         data = data[data['is_direct_msg']==is_direct_msg]
 
     # exclude yourself TODO: change so that it reads from user profile automatically
-    data = data[data['sender_name']!=c.YOUR_FULL_NAME]
+    name = full_name()
+    data = data[data['sender_name']!=name]
 
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
@@ -199,6 +226,7 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def plot_hour_day(data):
+    """Plot bar chart of messages in a 24h period segmented by day of the week."""
 
     data['day'] = data['date'].dt.day_name()
     data['hour'] = data['date'].dt.hour
@@ -221,6 +249,7 @@ def plot_hour_day(data):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 def wordcloud_plot(data):
+    """Plot a wordcloud"""
     
     data = data[data['num_words'] > 0]
 
@@ -234,6 +263,7 @@ def wordcloud_plot(data):
     plt.show()
 
 def first_msg(data, include_participants=None):
+    """Get the first message from each friend."""
 
     if include_participants == None:
         include_participants = rank_msgs(data, top_n=20, is_direct_msg=1)
@@ -254,6 +284,7 @@ def first_msg(data, include_participants=None):
 
 # rendering
 def output_html(**kwargs):
+    """Creates an html output and opens it."""
     
     output_folder = pathlib.Path(__file__).parent.absolute() / "output"
     os.makedirs(output_folder, exist_ok=True)

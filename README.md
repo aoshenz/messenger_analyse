@@ -52,3 +52,10 @@
 1. Clone repo
 2. Within 'messenger_analyse', create a folder called 'personal_data'. Unzip facebook data here.
 3. Create a virtual environment and install packages from `requirements.txt`
+
+### What this script does
+1. Reads in your Messenger data (locally).
+2. Creates 2 files: 
+    - GZIP file of messenger data so it doesn't need to reimport every run: `/personal_data/df.gzip`
+    - Outputs analysis: `/output`
+3. Produces a `html` analysis, allowing you to explore your data.

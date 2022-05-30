@@ -2,14 +2,7 @@ import pathlib
 import selfplots as sp
 import config as c
 
-
-# automated paths TODO: put these lines of code inside the function?
-msg_path = pathlib.Path(__file__).parent.absolute() / c.MSG_ROOT_FOLDER
-local_copy_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
-
 df = sp.import_data(
-    msg_path,
-    local_copy_file,
     create_new_file=False, # toggle to True if you need to update
     limit_files=None)
 
@@ -50,7 +43,6 @@ first_msg = sp.first_msg(df)
 # Output results
 # =================================================================
 info = {
-    "name": c.YOUR_FULL_NAME,
     "time_series": time_series,
     "bar_chart_dir_1": bar_chart_dir_1,
     # "bar_chart_dir_0": bar_chart_dir_0,
