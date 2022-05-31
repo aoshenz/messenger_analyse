@@ -7,6 +7,8 @@
 - Overview graphs
     - Messages over time (hour, day of the week, years)
         - by sent/received
+    - Net friends over time
+    - Who you follow over time
     - Emojis used over time
 - People
     - Bar chart of most number of messages
@@ -51,6 +53,7 @@
 
 
 ### Instructions
+0. Download Facebook information (messages, personal information, friends)
 1. Clone repo
 2. Within 'messenger_analyse', create a folder called 'personal_data'. Unzip facebook data here.
 3. Create a virtual environment and install packages from `requirements.txt`

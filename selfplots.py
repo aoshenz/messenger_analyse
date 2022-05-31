@@ -77,7 +77,7 @@ def import_data(create_new_file=False, limit_files=None):
     df = df[col_to_keep]
 
     # fix encoding e.g. emojis and apostrophes
-    df_temp['content'] = df_temp['content'].apply(lambda x: str(x).encode('latin-1').decode('utf-8'))
+    df['content'] = df['content'].apply(lambda x: str(x).encode('latin-1').decode('utf-8'))
 
     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
     df['date'] = pd.to_datetime(df['timestamp_ms'], unit='ms').dt.tz_localize('UTC').dt.tz_convert('Australia/Sydney')
@@ -98,7 +98,7 @@ def import_data(create_new_file=False, limit_files=None):
     print(f"Saved a copy of the data here: {local_file}")
 
     time_taken = time.time() - start_time
-    print(f"Time taken: {round(time_taken, 2)} minutes") # TODO: change to MM:SS format
+    print(f"Time taken: {round(time_taken/60, 2)} minutes") # TODO: change to MM:SS format
     return(df)
 
 
@@ -307,3 +307,26 @@ def output_html(**kwargs):
         f.write(output_str)
 
     os.system(f"open {output_path}")
+
+
+# Table of friends
+def friends():
+    inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
+
+    for path in pathlib.Path(inbox_folder).rglob('friends.json'):
+        with open(path) as f:
+            friends_json = json.load(f)
+        
+    df = pd.DataFrame(friends_json['friends_v2'])
+    df['name'] = df['name'].apply(lambda x: str(x).encode('latin-1').decode('utf-8'))
+
+    # # map timestamps TODO: automate correct timezone instead of assuming Sydney
+    df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.tz_localize('UTC').dt.tz_convert('Australia/Sydney')
+
+    keep = ['name', 'date']
+    df = df[keep]
+
+    return df
+
+lol = friends()
+print(lol)
