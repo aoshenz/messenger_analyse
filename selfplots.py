@@ -38,14 +38,13 @@ def import_data(create_new_file=False, limit_files=None):
     inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
 
     if pathlib.Path(local_file).is_file() & create_new_file==False:
-        print(f"Local copy detected at: {local_file}")
-        print(f"Importing this file.")
+        print(f"Importing previously saved output from: {local_file}")
         df = pd.read_parquet(local_file)
         return df
 
     msg_folders = []
     for path in pathlib.Path(inbox_folder).rglob('message_*.json'):
-        msg_folders.append(path)
+        msg_folders.append(str(path))
 
     if limit_files != None:
         msg_folders = msg_folders[0:limit_files]
@@ -56,6 +55,7 @@ def import_data(create_new_file=False, limit_files=None):
             msg_json = json.load(f)
         
         df_temp = pd.DataFrame(msg_json['messages'])
+        df_temp['file_path'] = msg_folder
 
         # participant identifier
         participants_list = []
@@ -73,8 +73,11 @@ def import_data(create_new_file=False, limit_files=None):
             print(f"{i+1} of {len(msg_folders)} imported")
     
     # columns to keep
-    col_to_keep = ['participants', 'sender_name', 'timestamp_ms', 'content', 'type']
+    col_to_keep = ['participants', 'sender_name', 'timestamp_ms', 'content', 'type', 'file_path']
     df = df[col_to_keep]
+
+    # fix encoding e.g. emojis and apostrophes
+    df_temp['content'] = df_temp['content'].apply(lambda x: str(x).encode('latin-1').decode('utf-8'))
 
     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
     df['date'] = pd.to_datetime(df['timestamp_ms'], unit='ms').dt.tz_localize('UTC').dt.tz_convert('Australia/Sydney')
@@ -93,9 +96,11 @@ def import_data(create_new_file=False, limit_files=None):
 
     df.to_parquet(local_file, compression='gzip')
     print(f"Saved a copy of the data here: {local_file}")
-    print(f"Time taken: {time.time() - start_time}")
 
+    time_taken = time.time() - start_time
+    print(f"Time taken: {round(time_taken, 2)} minutes") # TODO: change to MM:SS format
     return(df)
+
 
 def apply_adjustments(data):
     """Filters data based on dates selected in config."""

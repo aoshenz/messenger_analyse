@@ -22,6 +22,8 @@
 - Number of group chats shared with each person (also to gauge closeness)
 - Samples
     - First message to a person!
+- External data
+    - Weather
 
 ### Definitions
 - Words
