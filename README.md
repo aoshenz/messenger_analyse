@@ -53,7 +53,7 @@
 
 
 ### Instructions
-0. Download Facebook information (messages, personal information, friends)
+0. Download Facebook information (messages, personal information, friends) (low media quality, JSON, all time)
 1. Clone repo
 2. Within 'messenger_analyse', create a folder called 'personal_data'. Unzip facebook data here.
 3. Create a virtual environment and install packages from `requirements.txt`

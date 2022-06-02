@@ -6,7 +6,6 @@ import pathlib
 import pandas as pd
 import json
 import numpy as np
-import matplotlib.dates as mdates
 import time
 import config as c
 from wordcloud import WordCloud
@@ -40,6 +39,7 @@ def import_data(create_new_file=False, limit_files=None):
     if pathlib.Path(local_file).is_file() & create_new_file==False:
         print(f"Importing previously saved output from: {local_file}")
         df = pd.read_parquet(local_file)
+        print(f"Imported.")
         return df
 
     msg_folders = []
@@ -145,7 +145,31 @@ def report_details(data):
         "full_name": name,
         "now": now,
         "date_min": date_min,
-        "date_max": date_max}
+        "date_max": date_max,
+        "ma_days": c.MOVING_AVG_DAYS}
+
+def time_plot_all(data):
+    """Time series for all messages received. Not grouping by friends."""
+    
+    name = full_name()
+
+    data['zzdate'] = data['date'].dt.date
+    data = data[data['sender_name']!=name]
+
+    # fill in 0 value for dates with 0 messages
+    plot_data = data.groupby('zzdate')['content'].count()
+    date_range = pd.date_range(plot_data.index.min(), plot_data.index.max())
+    plot_data = plot_data.reindex(date_range, fill_value=0)
+    plot_data = plot_data.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
+    plot_data['Number of messages received'] = plot_data['content'].rolling(c.MOVING_AVG_DAYS).mean()
+
+    fig = px.line(
+            plot_data,
+            x="Date",
+            y="Number of messages received")
+
+    return fig.to_html(full_html=False, include_plotlyjs=True)
+
 
 def time_plot(data, include_participants=None, is_direct_msg=None):
     """Time series by friends."""
@@ -168,7 +192,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             temp = temp.reindex(date_range, fill_value=0)
             temp = temp.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
 
-            temp['# of Messages'] = temp['content'].rolling(30).mean()
+            temp['Number of messages received'] = temp['content'].rolling(c.MOVING_AVG_DAYS).mean()
             temp['Friend'] = person
 
             plot_data = plot_data.append(temp)
@@ -176,7 +200,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     fig = px.line(
             plot_data,
             x="Date",
-            y="# of Messages",
+            y="Number of messages received",
             color="Friend")
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
@@ -187,7 +211,7 @@ def rank_msgs(data, top_n=20, is_direct_msg=None):
     if is_direct_msg != None:
         data = data[data['is_direct_msg']==is_direct_msg]
 
-    # exclude yourself TODO: change so that it reads from user profile automatically
+    # exclude yourself
     name = full_name()
     data = data[data['sender_name']!=name]
 
@@ -205,28 +229,33 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     if is_direct_msg != None:
         data = data[data['is_direct_msg']==is_direct_msg]
 
-    # exclude yourself TODO: change so that it reads from user profile automatically
+    # exclude yourself
     name = full_name()
     data = data[data['sender_name']!=name]
 
     # get list of top senders
     summary = data.groupby('sender_name', as_index=False)['content'].count().sort_values('content', ascending=False)
     summary = summary.head(top_n)
-    top_senders = list(summary['sender_name'].unique())
 
-    #TODO: think about changing this to DMs only and use participants so we can color 
-    # "if_from_me" in the plot
+    title = 0
+    if is_direct_msg==None:
+        title = "Top " + str(top_n) + " friends (DMs & group chats)"
+    elif is_direct_msg==1:
+        title = "Top " + str(top_n) + " friends (DMs only)"
+    elif is_direct_msg==0:
+        title = "Top " + str(top_n) + " friends (group chats only)"
 
     fig = px.bar(
             summary,
             x="content",
             y="sender_name",
             orientation='h',
+            title=title,
             labels={
-                "content": "# of messages",
-                "sender_name": "Friend"
+                "content": "Number of messages received",
+                "sender_name": ""
             })
-    fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+    fig.update_layout(yaxis={'categoryorder': 'total ascending', 'tickmode': 'linear'})
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -245,7 +274,7 @@ def plot_hour_day(data):
         color="day",
         labels={
             "hour": "Hour",
-            "content": "# of messages",
+            "content": "Number of messages",
             "day": "Day"
         },
         category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
@@ -306,6 +335,7 @@ def output_html(**kwargs):
     with open(output_path, "w") as f:
         f.write(output_str)
 
+    print(f"Saved to {output_path}")
     os.system(f"open {output_path}")
 
 
@@ -321,12 +351,40 @@ def friends():
     df['name'] = df['name'].apply(lambda x: str(x).encode('latin-1').decode('utf-8'))
 
     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
-    df['date'] = pd.to_datetime(df['timestamp'], unit='ms').dt.tz_localize('UTC').dt.tz_convert('Australia/Sydney')
+    df['date'] = pd.to_datetime(df['timestamp']*1000, unit='ms').dt.tz_localize('UTC').dt.tz_convert('Australia/Sydney')
 
     keep = ['name', 'date']
     df = df[keep]
 
     return df
 
-lol = friends()
-print(lol)
+def friends_plot():
+    
+    data = friends()
+
+    data['date_mth'] = data['date'].dt.date.apply(lambda x : x.replace(day=1))
+
+    data = data.groupby('date_mth', as_index=False)['name'].count()
+
+    fig = px.bar(
+            data,
+            x="date_mth",
+            y="name",
+            labels={
+                "date_mth": "Date",
+                "name": "Number of new friends"
+            })
+
+    return fig.to_html(full_html=False, include_plotlyjs=True)
+
+
+# Interesting stats
+def interesting_stats(data):
+
+    data = friends()
+
+    # friends TODO: this doesn't reconcile??
+    num_friends = len(data)
+    first_friend = data[data['date']==data['date'].min()]['name'].iloc[0]
+
+    None

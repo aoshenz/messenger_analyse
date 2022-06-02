@@ -5,4 +5,4 @@ DATA_FROM = None
 DATA_TIL = None
 
 # Advanced configs
-# moving average days
+MOVING_AVG_DAYS = 30

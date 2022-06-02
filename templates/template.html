@@ -36,15 +36,21 @@
     </div>
 
     <div class="content">
+
+    {{ info.time_series_all }}
+
     
     Direct messages
-    {{ user_info.bar_chart_dir_1 }}
+    {{ info.bar_chart_dir_1 }}
+    {{ info.bar_chart_dir_none }}
 
-    {{ user_info.plot_hour_day }}
+    {{ info.time_series_dir_1 }}
+    {{ info.time_series_dir_none }}
 
-    {{ user_info.time_series }}
+    <p>Your most active hour of the day is ?</p>
+    {{ info.plot_hour_day }}
 
-    {{ user_info.first_msg }}
+    {{ info.first_msg }}
 
     </div>
 
@@ -65,7 +71,7 @@
           </tr>
           <tr>
             <td>Moving average</td>
-            <td>? days</td>
+            <td>{{ report_details.ma_days }}</td>
           </tr>
         </tbody>
         </table>
