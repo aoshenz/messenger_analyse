@@ -1,41 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
     <head>
         <title>Messenger analysis: {{ report_details.full_name }}</title>
         <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
 
+        <style>
+          * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          html {
+            scroll-behavior: smooth;
+          }
+          h1 {
+            font-size: 30px;
+          }
+          
+          body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          
+          /* Change color on hover */
+          .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+          }
+          
+          /* Style the title */
+          .title {
+            text-align: center;
+            background-color: rgb(255, 225, 234);
+            padding: 30px;
+          }
+
+          /* Style the content */
+          .content {
+            background-color: rgb(235, 254, 254);
+            padding: 30px;
+          }
+          
+          /* Style the footer */
+          .footer {
+            text-align: center;
+            background-color: #f8dbff;
+            padding: 30px;
+          }
+
+          table, th, td {
+            border-collapse: collapse;
+          }
+
+          table.center {
+            margin-left: auto; 
+            margin-right: auto;
+          }
+          </style>
     </head>
 
 <body>
 
-    <h1>Messenger analysis for {{ report_details.full_name }}</h1>
+  <div class="title">
+
+    <h1><b>{{ report_details.full_name }}</b>'s messenger analysis</h1>
     <p>Using data between {{ report_details.date_min }} and {{ report_details.date_max }} (inclusive).</p>
-    <p>Summary stats go here.</p>
 
-    <div class="tg-wrap"><table>
-        <tbody>
-          <tr>
-            <td>Date you joined Facebook</td>
-            <td>?</td>
-          </tr>
-          <tr>
-            <td>Messages sent</td>
-            <td>?</td>
-          </tr>
-          <tr>
-            <td>Messages received</td>
-            <td>?</td>
-          </tr>
-          <tr>
-            <td>Average words per message</td>
-            <td>?</td>
-          </tr>
-        </tbody>
-        </table>
-    </div>
+    <table class="center">
+      <tbody>
+        <tr>
+          <td>Date you joined Facebook</td>
+          <td>?</td>
+        </tr>
+        <tr>
+          <td>Messages sent</td>
+          <td>?</td>
+        </tr>
+        <tr>
+          <td>Messages received</td>
+          <td>?</td>
+        </tr>
+        <tr>
+          <td>Average words per message</td>
+          <td>?</td>
+        </tr>
+      </tbody>
+      </table>
 
-    <div class="content">
+  </div>
+
+  <div class="content">
 
     {{ info.time_series_all }}
 
@@ -52,30 +106,31 @@
 
     {{ info.first_msg }}
 
-    </div>
+  </div>
 
-    <h2>Analysis details:</h2>
-    <div class="tg-wrap"><table>
-        <tbody>
-          <tr>
-            <td>Run date</td>
-            <td>{{ report_details.now }}</td>
-          </tr>
-          <tr>
-            <td>Data from</td>
-            <td>{{ report_details.date_min }}</td>
-          </tr>
-          <tr>
-            <td>Data until</td>
-            <td>{{ report_details.date_max }}</td>
-          </tr>
-          <tr>
-            <td>Moving average</td>
-            <td>{{ report_details.ma_days }}</td>
-          </tr>
-        </tbody>
-        </table>
-    </div>
+  
+  <div class="footer">
+    <h1>Analysis details</h1>
+
+    <table class="center">
+      <tr>
+        <td>Run date</td>
+        <td>{{ report_details.now }}</td>
+      </tr>
+      <tr>
+        <td>Data from</td>
+        <td>{{ report_details.date_min }}</td>
+      </tr>
+      <tr>
+        <td>Data until</td>
+        <td>{{ report_details.date_max }}</td>
+      </tr>
+      <tr>
+        <td>Moving average</td>
+        <td>{{ report_details.ma_days }} days</td>
+      </tr>
+    </table>
+  </div>
 
 </body>
 </html>

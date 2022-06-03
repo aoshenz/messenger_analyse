@@ -18,6 +18,10 @@ from datetime import datetime
 pd.options.mode.chained_assignment = None
 pd.set_option('display.max_rows', 100)
 
+layout = {
+    'paper_bgcolor': 'rgba(255,255,255,0.7)',
+    'plot_bgcolor': 'rgba(255,255,255,0.7)'}
+
 def check_data_exists():
 
     # Check paths
@@ -167,6 +171,8 @@ def time_plot_all(data):
             plot_data,
             x="Date",
             y="Number of messages received")
+    
+    fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -202,6 +208,8 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             x="Date",
             y="Number of messages received",
             color="Friend")
+    
+    fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -256,6 +264,7 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
                 "sender_name": ""
             })
     fig.update_layout(yaxis={'categoryorder': 'total ascending', 'tickmode': 'linear'})
+    fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -279,6 +288,7 @@ def plot_hour_day(data):
         },
         category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
     fig.update_xaxes(dtick=1)
+    fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 

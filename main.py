@@ -18,56 +18,59 @@ report_details = utils.report_details(df)
 
 
 
-df = df[df['date'] < '2011-01-01']
-print(df.head(100))
+# Produce graphs
+# =================================================================
 
-# # Produce graphs
-# # =================================================================
+# Bar chart of top friends by messages
+bar_chart_dir_1 = utils.rank_msgs_barh(df, is_direct_msg=1) 
+bar_chart_dir_none = utils.rank_msgs_barh(df, is_direct_msg=None)
 
-# # Bar chart of top friends by messages
-# bar_chart_dir_1 = utils.rank_msgs_barh(df, is_direct_msg=1) 
-# bar_chart_dir_none = utils.rank_msgs_barh(df, is_direct_msg=None)
+# Stacked bar chart by time of the day
+plot_hour_day = utils.plot_hour_day(df)
 
-# # Stacked bar chart by time of the day
-# plot_hour_day = utils.plot_hour_day(df)
+# Rank top senders
+top_senders_dir_1 = utils.rank_msgs(df, top_n=10, is_direct_msg=1)
+top_senders_dir_none = utils.rank_msgs(df, top_n=10, is_direct_msg=None)
 
-# # Rank top senders
-# top_senders_dir_1 = utils.rank_msgs(df, top_n=10, is_direct_msg=1)
-# top_senders_dir_none = utils.rank_msgs(df, top_n=10, is_direct_msg=None)
+# Time series by friend
+# this double counts it as all participants s
+# how up for each msg.... 
+# need to just capture sender name i think...
+time_series_dir_1 = utils.time_plot(df, include_participants=top_senders_dir_1, is_direct_msg=1)
+time_series_dir_none = utils.time_plot(df, include_participants=top_senders_dir_none, is_direct_msg=None)
 
-# # Time series by friend
-# # this double counts it as all participants s
-# # how up for each msg.... 
-# # need to just capture sender name i think...
-# time_series_dir_1 = utils.time_plot(df, include_participants=top_senders_dir_1, is_direct_msg=1)
-# time_series_dir_none = utils.time_plot(df, include_participants=top_senders_dir_none, is_direct_msg=None)
+# Message length by time of the d 
+# ?
 
-# # Message length by time of the d 
-# # ?
+# Word Cloud
+# utils.wordcloud_plot(df)
 
-# # Word Cloud
-# # utils.wordcloud_plot(df)
+# Samples
+# =================================================================
 
-# # Samples
-# # =================================================================
+first_msg = utils.first_msg(df)
 
-# first_msg = utils.first_msg(df)
 
-# # Output results
-# # =================================================================
-# info = {
-#     "time_series_all": time_series_all,
+# NLP
+# =================================================================
 
-#     "bar_chart_dir_1": bar_chart_dir_1,
-#     "bar_chart_dir_none": bar_chart_dir_none,
 
-#     "time_series_dir_1": time_series_dir_1,
-#     "time_series_dir_none": time_series_dir_none,
 
-#     # "first_msg": first_msg,
-#     "plot_hour_day": plot_hour_day
-# }
+# Output results
+# =================================================================
+info = {
+    "time_series_all": time_series_all,
 
-# utils.output_html(
-#     info = info,
-#     report_details = report_details)
+    "bar_chart_dir_1": bar_chart_dir_1,
+    "bar_chart_dir_none": bar_chart_dir_none,
+
+    "time_series_dir_1": time_series_dir_1,
+    "time_series_dir_none": time_series_dir_none,
+
+    # "first_msg": first_msg,
+    "plot_hour_day": plot_hour_day
+}
+
+utils.output_html(
+    info = info,
+    report_details = report_details)
