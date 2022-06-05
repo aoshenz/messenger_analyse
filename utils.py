@@ -13,6 +13,7 @@ import os
 import pkg_resources
 from jinja2 import Template
 from datetime import datetime, timedelta
+import personal_data.anon as anon # DELETE
 
 
 pd.options.mode.chained_assignment = None
@@ -112,6 +113,9 @@ def import_data(create_new_file=False, limit_files=None):
 def apply_adjustments(data):
     """Filters data based on dates selected in config."""
 
+    # Remap names # DELETE
+    data["sender_name"].replace(anon.mapping, inplace=True)
+
     if (c.DATA_FROM != None) & (c.DATA_TIL != None):
         return data[(data['date'] >= c.DATA_FROM) & (data['date'] <= c.DATA_TIL)]
     elif c.DATA_FROM != None:
@@ -130,6 +134,7 @@ def full_name():
         with open(path) as f:
             data = json.load(f)
     
+    return "Eren Yaeger" # DELETE
     return data["profile_v2"]['name']['full_name']
 
 
@@ -228,8 +233,6 @@ def time_plot_all(data):
             x="Date",
             y="Daily messages received")
     
-    fig.update_layout(layout)
-
     # highlight section of analysis if data is subsetted
     if (c.DATA_FROM != None) | (c.DATA_FROM != None):
         x_start = c.DATA_FROM or data['zzdate'].min()
@@ -239,6 +242,8 @@ def time_plot_all(data):
         x_end = pd.to_datetime(x_end)
 
         fig.add_vrect(x0=x_start, x1=x_end, annotation_text="Analysis period", annotation_position="top left", fillcolor="purple", opacity=0.1, line_width=0)
+
+    fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 

@@ -27,31 +27,31 @@
           
           .title {
             text-align: center;
-            background-color: rgb(255, 225, 234);
+            background-color: rgb(255, 216, 228);
             padding: 30px;
           }
 
           .content0 {
             text-align: center;
-            background-color: rgb(235, 254, 254);
+            background-color: rgb(219, 255, 255);
             padding: 30px;
           }
 
           .content1 {
             text-align: center;
-            background-color: rgb(243, 255, 236);
+            background-color: rgb(243, 232, 255);
             padding: 30px;
           }
 
           .content2 {
             text-align: center;
-            background-color: rgb(248, 255, 229);
+            background-color: rgb(229, 255, 239);
             padding: 30px;
           }
 
           .content3 {
             text-align: center;
-            background-color: rgb(255, 227, 220);
+            background-color: rgb(255, 234, 229);
             padding: 30px;
           }
 
@@ -66,7 +66,7 @@
           /* Style the footer */
           .footer {
             text-align: center;
-            background-color: #f8dbff;
+            background-color: #fae6ff;
             padding: 30px;
           }
 
@@ -127,10 +127,10 @@
 
     <div class="row">
       <div class="column">
-        {{ info.bar_chart_dir_1 }}
+        {{ info.bar_chart_1 }}
       </div>
       <div class="column">
-        {{ info.bar_chart_dir_none }}
+        {{ info.bar_chart_2 }}
       </div>
     </div>
 
@@ -138,10 +138,10 @@
 
   <div class="content2">
     <h1><b>Trends</b></h1>
-    <p>Have you talked to different friends over the years?</p>
-    {{ info.time_series_dir_1 }}
+    <p>How much have you talked to each friend over the years?</p>
+    {{ info.time_series_1 }}
     <br>
-    {{ info.time_series_dir_none }}
+    {{ info.time_series_2 }}
   </div>
 
 
@@ -173,7 +173,9 @@
     <p>
       <h2><b>Note</b></h2> <br>
       All line graphs use a rolling {{ report_details.ma_days }} day average to smooth out the trends. This can be adjusted in config.py. <br>
-      You can also adjust the date range for the analysis. For example, you can focus on a particular year. Also in config.py.
+      You can also adjust the date range for the analysis. For example, you can focus on a particular year. Also in config.py.<br>
+      Most of the graphs are interactive. You can select values to include in the legend, zoom into particular regions and so on. <br>
+      Some data from Messenger may be missing.(There is an issue with Meta sharing all of your data.)
 
       <br> <br>
     </p>
