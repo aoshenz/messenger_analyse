@@ -16,6 +16,9 @@
           h1 {
             font-size: 30px;
           }
+          h2 {
+            font-size: 20px;
+          }
           
           body {
             margin: 0;
@@ -104,8 +107,16 @@
   <div class="content0">
 
     <h1><b>All time activity</b></h1>
-    <p>When have you used Messenger most?</p>
+    <p>When were you most active on Messenger?</p>
     {{ info.time_series_all }}
+
+    {% if report_details.is_date_adj == 1 %}
+      <br>
+      <p><b>From here onwards data used is based on the 'Analysis period' highlighted in the graph above.</b></p>
+    {% else %}
+      <br>
+      <p><i>Note that you can change the time period of focus in config.py (using DATA_FROM and DATA_TIL).</i></p>
+    {% endif %}
 
   </div>
 
@@ -138,7 +149,6 @@
 
     <h1><b>Activity by the hour</b></h1>
     <p>
-      What hours of the day and week are you most active?<br>
       Your most active hour of the week is <b>{{ hour_day_metrics.hour }} on {{ hour_day_metrics.day }}s</b>.
     </p>
     {{ info.plot_hour_day }}
@@ -150,27 +160,31 @@
   
   <div class="footer">
     <h1><b>Analysis details</b></h1>
-    <p>Understand the details behind the analysis.</p>
+    <p>Understand the details behind the analysis. <br> <br> </p>
 
-    <table class="center">
-      <tr>
-        <td>Run datetime</td>
-        <td>{{ report_details.now }}</td>
-      </tr>
-      <tr>
-        <td>Data from</td>
-        <td>{{ report_details.date_min }}</td>
-      </tr>
-      <tr>
-        <td>Data until</td>
-        <td>{{ report_details.date_max }}</td>
-      </tr>
-      <tr>
-        <td>Moving average</td>
-        <td>{{ report_details.ma_days }} days</td>
-      </tr>
-    </table>
-  </div>
+    <p>
+      <h2><b>Definitions</b></h2> <br>
+      <b>Messages</b>: each individual block of text sent in Messenger (i.e. when you hit enter/send). This is loosely defined and may contain other elements e.g. audio calls. <br>
+      <b>Words</b>: text or emojis that are separated by a space. These do not need to be actual words.
+
+      <br> <br>
+    </p>
+
+    <p>
+      <h2><b>Note</b></h2> <br>
+      All line graphs use a rolling {{ report_details.ma_days }} day average to smooth out the trends. This can be adjusted in config.py. <br>
+      You can also adjust the date range for the analysis. For example, you can focus on a particular year. Also in config.py.
+
+      <br> <br>
+    </p>
+
+    <p>
+      <h2><b>Data</b></h2> <br>
+      Run datetime: {{ report_details.now }} <br>
+      Data from: {{ report_details.date_min }} <br>
+      Data until: {{ report_details.date_max }} <br>
+      Moving average: {{ report_details.ma_days }} days <br>
+    </p>
 
 </body>
 </html>

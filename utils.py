@@ -30,6 +30,7 @@ def check_data_exists():
     # Check required files exist
     # Check config formats
     # Output in log
+    # Check DATA_FROM/TIL is within data range of data
     None
 
 def import_data(create_new_file=False, limit_files=None):
@@ -147,12 +148,16 @@ def report_details(data):
     # Latest data date
     date_max = data['date'].dt.date.max()
 
+    # Flag if data has been subsetted
+    is_date_adj = 1 if (c.DATA_FROM != None) | (c.DATA_TIL != None) else 0
+    
     return {
         "full_name": name,
         "now": now,
         "date_min": date_min,
         "date_max": date_max,
-        "ma_days": c.MOVING_AVG_DAYS}
+        "ma_days": c.MOVING_AVG_DAYS,
+        "is_date_adj": is_date_adj}
 
 def overview_metrics(data):
     """Dictionary of interesting metrics."""
@@ -216,14 +221,24 @@ def time_plot_all(data):
     date_range = pd.date_range(plot_data.index.min(), plot_data.index.max())
     plot_data = plot_data.reindex(date_range, fill_value=0)
     plot_data = plot_data.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
-    plot_data['Number of messages received'] = plot_data['content'].rolling(c.MOVING_AVG_DAYS).mean()
+    plot_data['Daily messages received'] = plot_data['content'].rolling(c.MOVING_AVG_DAYS).mean()
 
     fig = px.line(
             plot_data,
             x="Date",
-            y="Number of messages received")
+            y="Daily messages received")
     
     fig.update_layout(layout)
+
+    # highlight section of analysis if data is subsetted
+    if (c.DATA_FROM != None) | (c.DATA_FROM != None):
+        x_start = c.DATA_FROM or data['zzdate'].min()
+        x_end = c.DATA_TIL or data['zzdate'].max()
+
+        x_start = pd.to_datetime(x_start)
+        x_end = pd.to_datetime(x_end)
+
+        fig.add_vrect(x0=x_start, x1=x_end, annotation_text="Analysis period", annotation_position="top left", fillcolor="purple", opacity=0.1, line_width=0)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
@@ -249,7 +264,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
             temp = temp.reindex(date_range, fill_value=0)
             temp = temp.reset_index().rename(columns={'index': 'Date'}) #TODO: how to do these steps without resetting index?
 
-            temp['Number of messages received'] = temp['content'].rolling(c.MOVING_AVG_DAYS).mean()
+            temp['Daily messages received'] = temp['content'].rolling(c.MOVING_AVG_DAYS).mean()
             temp['Friend'] = person
 
             plot_data = plot_data.append(temp)
@@ -265,7 +280,7 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     fig = px.line(
             plot_data,
             x="Date",
-            y="Number of messages received",
+            y="Daily messages received",
             title=title,
             color="Friend")
     
@@ -320,7 +335,7 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
             orientation='h',
             title=title,
             labels={
-                "content": "Number of messages received",
+                "content": "Daily messages received",
                 "sender_name": ""
             })
     fig.update_layout(yaxis={'categoryorder': 'total ascending', 'tickmode': 'linear'})
@@ -352,7 +367,7 @@ class HourDay:
             color="day",
             labels={
                 "hour": "Hour",
-                "content": "Number of messages",
+                "content": "Daily messages",
                 "day": "Day"
             },
             category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
