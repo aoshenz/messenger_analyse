@@ -12,7 +12,7 @@ from wordcloud import WordCloud
 import os
 import pkg_resources
 from jinja2 import Template
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 pd.options.mode.chained_assignment = None
@@ -20,7 +20,9 @@ pd.set_option('display.max_rows', 100)
 
 layout = {
     'paper_bgcolor': 'rgba(255,255,255,0.7)',
-    'plot_bgcolor': 'rgba(255,255,255,0.7)'}
+    'title_x':0.5
+    # 'plot_bgcolor': 'rgba(255,255,255,0.5)'
+    }
 
 def check_data_exists():
 
@@ -152,6 +154,55 @@ def report_details(data):
         "date_max": date_max,
         "ma_days": c.MOVING_AVG_DAYS}
 
+def overview_metrics(data):
+    """Dictionary of interesting metrics."""
+
+    name = full_name()
+    
+    # Dates
+    data_date_diff = data['date'].max() - data['date'].min() + timedelta(days=1)
+    days_of_data = data_date_diff.days
+
+    # Number of messages sent/received
+    msg_sent = data[data['sender_name']==name]['content'].count()
+    msg_received = data[data['sender_name']!=name]['content'].count()
+
+    # Number of words sent/received
+    words_sent = data[data['sender_name']==name]['num_words'].sum()
+    words_received = data[data['sender_name']!=name]['num_words'].sum()
+
+    # Average words per message sent/received
+    words_per_msg_sent = words_sent / msg_sent
+    words_per_msg_received = words_received / msg_received
+
+    # Average number of messages per day
+    msg_per_day_sent = msg_sent / days_of_data
+    msg_per_day_received = msg_received / days_of_data
+
+    var_list = [
+        'days_of_data',
+        'msg_sent',
+        'msg_received',
+        'words_sent',
+        'words_received',
+        'words_per_msg_sent',
+        'words_per_msg_received',
+        'msg_per_day_sent',
+        'msg_per_day_received']
+
+    dict = {}
+    for i in var_list:
+        num = eval(i)
+
+        if num >= 10:
+            num_formatted = "{:,.0f}".format(num)
+        else:
+            num_formatted = "{:.2f}".format(num)
+
+        dict[i] = num_formatted
+    
+    return dict
+
 def time_plot_all(data):
     """Time series for all messages received. Not grouping by friends."""
     
@@ -203,10 +254,19 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
 
             plot_data = plot_data.append(temp)
 
+    title = 0
+    if is_direct_msg==None:
+        title = "DMs & group chats"
+    elif is_direct_msg==1:
+        title = "DMs only"
+    elif is_direct_msg==0:
+        title = "Group chats only"
+
     fig = px.line(
             plot_data,
             x="Date",
             y="Number of messages received",
+            title=title,
             color="Friend")
     
     fig.update_layout(layout)
@@ -247,11 +307,11 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
 
     title = 0
     if is_direct_msg==None:
-        title = "Top " + str(top_n) + " friends (DMs & group chats)"
+        title = "DMs & group chats (top " + str(top_n) + ")"
     elif is_direct_msg==1:
-        title = "Top " + str(top_n) + " friends (DMs only)"
+        title = "DMs only (top " + str(top_n) + ")"
     elif is_direct_msg==0:
-        title = "Top " + str(top_n) + " friends (group chats only)"
+        title = "Group chats only (top " + str(top_n) + ")"
 
     fig = px.bar(
             summary,
@@ -268,29 +328,55 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
-def plot_hour_day(data):
-    """Plot bar chart of messages in a 24h period segmented by day of the week."""
 
-    data['day'] = data['date'].dt.day_name()
-    data['hour'] = data['date'].dt.hour
+class HourDay:
 
-    df_msg_count = data.groupby(['hour', 'day'], as_index=False)['content'].count()
+    def __init__(self, data):
+        self.data = data
 
-    fig = px.bar(
-        df_msg_count,
-        x='hour',
-        y="content",
-        color="day",
-        labels={
-            "hour": "Hour",
-            "content": "Number of messages",
-            "day": "Day"
-        },
-        category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
-    fig.update_xaxes(dtick=1)
-    fig.update_layout(layout)
+    def data_count(self):
+        self.data['day'] = self.data['date'].dt.day_name()
+        self.data['hour'] = self.data['date'].dt.hour
 
-    return fig.to_html(full_html=False, include_plotlyjs=True)
+        return self.data.groupby(['hour', 'day'], as_index=False)['content'].count()
+
+    def plot_hour_day(self):
+        """Plot bar chart of messages in a 24h period segmented by day of the week."""
+
+        df_msg_count = self.data_count()
+
+        fig = px.bar(
+            df_msg_count,
+            x='hour',
+            y="content",
+            color="day",
+            labels={
+                "hour": "Hour",
+                "content": "Number of messages",
+                "day": "Day"
+            },
+            category_orders={"day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]})
+        fig.update_xaxes(dtick=1)
+        fig.update_layout(layout)
+
+        return fig.to_html(full_html=False, include_plotlyjs=True)
+    
+    def metrics(self):
+        
+        df_msg_count = self.data_count().sort_values(['content'], ascending=False)
+
+        hour24 = df_msg_count.iloc[0,0]
+        if hour24 == 0:
+            hour = "12am"
+        elif hour24 >= 12:
+            hour = str(hour24 - 12) + "pm"
+        else:
+            hour = str(hour24) + "am"
+
+        day = df_msg_count.iloc[0,1]
+
+        return {'hour': hour, "day": day}
+
 
 def wordcloud_plot(data):
     """Plot a wordcloud"""

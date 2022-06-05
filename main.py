@@ -16,6 +16,7 @@ report_details = utils.report_details(df)
 # Summary metrics
 # =================================================================
 
+overview_metrics = utils.overview_metrics(df)
 
 
 # Produce graphs
@@ -26,7 +27,11 @@ bar_chart_dir_1 = utils.rank_msgs_barh(df, is_direct_msg=1)
 bar_chart_dir_none = utils.rank_msgs_barh(df, is_direct_msg=None)
 
 # Stacked bar chart by time of the day
-plot_hour_day = utils.plot_hour_day(df)
+hour_day = utils.HourDay(df)
+plot_hour_day = hour_day.plot_hour_day()
+hour_day_metrics = hour_day.metrics()
+
+
 
 # Rank top senders
 top_senders_dir_1 = utils.rank_msgs(df, top_n=10, is_direct_msg=1)
@@ -72,5 +77,7 @@ info = {
 }
 
 utils.output_html(
+    overview_metrics = overview_metrics,
     info = info,
+    hour_day_metrics = hour_day_metrics,
     report_details = report_details)

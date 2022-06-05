@@ -22,25 +22,44 @@
             font-family: Arial, Helvetica, sans-serif;
           }
           
-          /* Change color on hover */
-          .topnav a:hover {
-            background-color: #ddd;
-            color: black;
-          }
-          
-          /* Style the title */
           .title {
             text-align: center;
             background-color: rgb(255, 225, 234);
             padding: 30px;
           }
 
-          /* Style the content */
-          .content {
+          .content0 {
+            text-align: center;
             background-color: rgb(235, 254, 254);
             padding: 30px;
           }
-          
+
+          .content1 {
+            text-align: center;
+            background-color: rgb(243, 255, 236);
+            padding: 30px;
+          }
+
+          .content2 {
+            text-align: center;
+            background-color: rgb(248, 255, 229);
+            padding: 30px;
+          }
+
+          .content3 {
+            text-align: center;
+            background-color: rgb(255, 227, 220);
+            padding: 30px;
+          }
+
+          .row {
+            display: flex;
+          }
+
+          .column {
+            width: 50%;
+          }
+
           /* Style the footer */
           .footer {
             text-align: center;
@@ -66,42 +85,62 @@
     <h1><b>{{ report_details.full_name }}</b>'s messenger analysis</h1>
     <p>Using data between {{ report_details.date_min }} and {{ report_details.date_max }} (inclusive).</p>
 
-    <table class="center">
-      <tbody>
-        <tr>
-          <td>Date you joined Facebook</td>
-          <td>?</td>
-        </tr>
-        <tr>
-          <td>Messages sent</td>
-          <td>?</td>
-        </tr>
-        <tr>
-          <td>Messages received</td>
-          <td>?</td>
-        </tr>
-        <tr>
-          <td>Average words per message</td>
-          <td>?</td>
-        </tr>
-      </tbody>
-      </table>
+    <p>
+      In <b>{{ overview_metrics.days_of_data }}</b> days: <br>
+    </p>
+
+    <p>
+      You sent <b>{{ overview_metrics.msg_sent }}</b> <i>messages</i> and received <b>{{ overview_metrics.msg_received }}</b>. <br>
+      In terms of <i>words</i>, you sent <b>{{ overview_metrics.words_sent }}</b> and received <b>{{ overview_metrics.words_received }}</b>.
+      (<b>{{ overview_metrics.words_per_msg_sent }}</b> <i>words per message</i> sent and <b>{{ overview_metrics.words_per_msg_received }}</b> received.)
+    </p>
+
+    <p>
+      This means on average you send <b>{{ overview_metrics.msg_per_day_sent }}</b> and receive <b>{{ overview_metrics.msg_per_day_received }}</b> <i>messages per day</i>!
+    </p>
 
   </div>
 
-  <div class="content">
+  <div class="content0">
 
+    <h1><b>All time activity</b></h1>
+    <p>When have you used Messenger most?</p>
     {{ info.time_series_all }}
 
-    
-    Direct messages
-    {{ info.bar_chart_dir_1 }}
-    {{ info.bar_chart_dir_none }}
+  </div>
 
+  <div class="content1">
+
+    <h1><b>Favourite friends</b></h1>
+    <p>Which friends do you talk to most?</p>
+
+    <div class="row">
+      <div class="column">
+        {{ info.bar_chart_dir_1 }}
+      </div>
+      <div class="column">
+        {{ info.bar_chart_dir_none }}
+      </div>
+    </div>
+
+  </div>
+
+  <div class="content2">
+    <h1><b>Trends</b></h1>
+    <p>Have you talked to different friends over the years?</p>
     {{ info.time_series_dir_1 }}
+    <br>
     {{ info.time_series_dir_none }}
+  </div>
 
-    <p>Your most active hour of the day is ?</p>
+
+  <div class="content3">
+
+    <h1><b>Activity by the hour</b></h1>
+    <p>
+      What hours of the day and week are you most active?<br>
+      Your most active hour of the week is <b>{{ hour_day_metrics.hour }} on {{ hour_day_metrics.day }}s</b>.
+    </p>
     {{ info.plot_hour_day }}
 
     {{ info.first_msg }}
@@ -110,11 +149,12 @@
 
   
   <div class="footer">
-    <h1>Analysis details</h1>
+    <h1><b>Analysis details</b></h1>
+    <p>Understand the details behind the analysis.</p>
 
     <table class="center">
       <tr>
-        <td>Run date</td>
+        <td>Run datetime</td>
         <td>{{ report_details.now }}</td>
       </tr>
       <tr>
