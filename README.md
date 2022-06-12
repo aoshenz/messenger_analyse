@@ -64,3 +64,8 @@
     - GZIP file of messenger data so it doesn't need to reimport every run: `/personal_data/df.gzip`
     - Outputs analysis: `/output`
 3. Produces a `html` analysis, allowing you to explore your data.
+
+
+### Coding improvement questions
+1. Should I group functions into classes?
+    - When you do `self.example = 2` in one method, does that update the original `self.example`? How do you reference `self.example` in multiple methods without overwriting the original value?
