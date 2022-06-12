@@ -13,7 +13,9 @@ import os
 import pkg_resources
 from jinja2 import Template
 from datetime import datetime, timedelta
+from emoji import EMOJI_DATA
 import personal_data.anon as anon # DELETE
+
 
 
 pd.options.mode.chained_assignment = None
@@ -77,8 +79,10 @@ def import_data(create_new_file=False, limit_files=None):
 
         df = df.append(df_temp)
 
+        num_msg_folders = "{:,.0f}".format(len(msg_folders))
         if (i+1) % 50 == 0:
-            print(f"{i+1} of {len(msg_folders)} imported")
+            i_format = "{:,.0f}".format(i+1)
+            print(f"{i_format} of {num_msg_folders} imported")
     
     # columns to keep
     col_to_keep = ['participants', 'sender_name', 'timestamp_ms', 'content', 'type', 'file_path']
@@ -95,12 +99,12 @@ def import_data(create_new_file=False, limit_files=None):
     df['num_words'] = df['content'].str.split().str.len()
     df['num_participants'] = df['participants'].str.split(",").str.len()
 
-    # flags
-    name = full_name()
-    df['is_from_me'] = np.where(df['sender_name'] == name, 1, 0)
-    df['is_direct_msg'] = np.where(df['num_participants'] == 2, 1, 0)
+    # emojis
+    df['emojis'] = df['content'].apply(extract_emojis)
+    df['has_emoji'] = np.where(df['emojis'].isna(), 0, 1)
 
-    print(f"Messages imported: {len(df)}")
+    df_length = "{:,.0f}".format(len(df))
+    print(f"Messages imported: {df_length}")
 
     df.to_parquet(local_file, compression='gzip')
     print(f"Saved a copy of the data here: {local_file}")
@@ -109,12 +113,21 @@ def import_data(create_new_file=False, limit_files=None):
     print(f"Time taken: {round(time_taken/60, 2)} minutes") # TODO: change to MM:SS format
     return(df)
 
+def extract_emojis(content):
+    list = [i for i in content if i in EMOJI_DATA]
+    
+    return " ".join(list) if len(list) > 0 else pd.NA
 
 def apply_adjustments(data):
     """Filters data based on dates selected in config."""
 
     # Remap names # DELETE
     data["sender_name"].replace(anon.mapping, inplace=True)
+
+    # flags
+    name = full_name()
+    data['is_from_me'] = np.where(data['sender_name'] == name, 1, 0)
+    data['is_direct_msg'] = np.where(data['num_participants'] == 2, 1, 0)
 
     if (c.DATA_FROM != None) & (c.DATA_TIL != None):
         return data[(data['date'] >= c.DATA_FROM) & (data['date'] <= c.DATA_TIL)]
