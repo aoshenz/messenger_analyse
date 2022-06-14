@@ -3,7 +3,6 @@ import typer
 
 app = typer.Typer()
 
-
 @app.command()
 def main():
     # Data
@@ -24,18 +23,11 @@ def main():
     # Get report details and metrics
     metrics = utils.Metrics(df)
 
-    # Emojis
-    emoji_sent = utils.plot_emoji_bar(df, is_from_me=1)
-    emoji_received = utils.plot_emoji_bar(df, is_from_me=0)
-
     # Charts
     # =================================================================
     # Bar chart of top friends by messages
     bar_chart_1 = utils.rank_msgs_barh(df, is_direct_msg=1)
     bar_chart_2 = utils.rank_msgs_barh(df, is_direct_msg=0)
-
-    # Stacked bar chart by time of the day
-    hour_day = utils.HourDay(df)
 
     # Rank top senders
     top_senders_1 = utils.rank_msgs(df, top_n=20, is_direct_msg=1)
@@ -48,6 +40,13 @@ def main():
     time_series_2 = utils.time_plot(
         df, include_participants=top_senders_2, is_direct_msg=0
     )
+
+    # Emojis
+    emoji_sent = utils.plot_emoji_bar(df, is_from_me=1)
+    emoji_received = utils.plot_emoji_bar(df, is_from_me=0)
+
+    # Stacked bar chart by time of the day
+    hour_day = utils.HourDay(df)
 
     # Word Cloud
     # utils.wordcloud_plot(df)

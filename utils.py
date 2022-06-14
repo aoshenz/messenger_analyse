@@ -29,6 +29,18 @@ layout = {
 
 def check_data_exists():
 
+    errors = 0
+
+    # Check your profile info exists
+    try:
+        full_name()
+    except:
+        print("Failed to gather your name. \nCheck you have downloaded 'Personal Information' and that this file exists 'profile_information.json'")
+        
+        errors += 1
+
+    print(f"Number of errors: {errors}")
+
     # Check paths
     # Check required files exist
     # Check config formats
@@ -48,7 +60,6 @@ def full_name():
 
     return "Eren Yaeger"  # DELETE
     return data["profile_v2"]["name"]["full_name"]
-
 
 class LoadData:
     def __init__(self):
@@ -584,8 +595,7 @@ def interesting_stats(data):
 
     None
 
-
-def plot_emoji_bar(data, is_from_me=None, top_n=20):
+def emoji_counter(data, is_from_me=None):
 
     data = data[data["has_emoji"] == 1]
 
@@ -601,12 +611,18 @@ def plot_emoji_bar(data, is_from_me=None, top_n=20):
         .reset_index(name="count")
     )
 
+    return emoji_count
+
+def plot_emoji_bar(data, is_from_me=None, top_n=20):
+
+    emoji_count = emoji_counter(data=data, is_from_me=is_from_me)
+    emoji_count = emoji_count.head(top_n)
+
     if is_from_me == 1:
         header = "From you"
     elif is_from_me == 0:
         header = "From others"
 
-    emoji_count = emoji_count.head(top_n)
     fig = px.bar(
         emoji_count,
         x="count",
@@ -621,8 +637,3 @@ def plot_emoji_bar(data, is_from_me=None, top_n=20):
     fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
-
-    # with_emoji = len(df[df['has_emoji']==1])
-    # without_emoji = len(df[df['has_emoji']==0])
-    # len_df = len(df)
-    # print(with_emoji/len_df)
