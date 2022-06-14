@@ -10,3 +10,4 @@ pandas
 pyarrow
 plotly
 emoji
+emojis

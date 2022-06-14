@@ -582,7 +582,7 @@ def interesting_stats(data):
     None
 
 
-def plot_emoji_bar(data, is_from_me=None):
+def plot_emoji_bar(data, is_from_me=None, top_n=20):
 
     data = data[data["has_emoji"] == 1]
 
@@ -598,9 +598,19 @@ def plot_emoji_bar(data, is_from_me=None):
         .reset_index(name="count")
     )
 
-    emoji_count = emoji_count.head(50)
-    fig = px.bar(emoji_count, x="count", y="emoji", orientation="h")
-    fig.show()
+    if is_from_me == 1:
+        header = "From you"
+    elif is_from_me == 0:
+        header = "From others"
+
+    emoji_count = emoji_count.head(top_n)
+    fig = px.bar(emoji_count, x="count", y="emoji", orientation="h", title=header, labels={"emoji": ""})
+
+    fig.update_yaxes(dtick=1)
+    fig.update_layout(yaxis={"categoryorder": "total ascending"})
+    fig.update_layout(layout)
+
+    return fig.to_html(full_html=False, include_plotlyjs=True)
 
     # with_emoji = len(df[df['has_emoji']==1])
     # without_emoji = len(df[df['has_emoji']==0])

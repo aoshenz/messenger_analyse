@@ -1,6 +1,9 @@
 import utils as utils
+import typer
 
+app = typer.Typer()
 
+@app.command()
 def main():
     # Data
     # =================================================================
@@ -21,13 +24,10 @@ def main():
     metrics = utils.Metrics(df)
 
     # Emojis
-    # def plot_emoji_time():
-    #     None
+    emoji_sent = utils.plot_emoji_bar(df, is_from_me=1)
+    emoji_received = utils.plot_emoji_bar(df, is_from_me=0)
 
-    # utils.plot_emoji_bar(df, is_from_me=1)
-    # utils.plot_emoji_bar(df, is_from_me=0)
-
-    # Produce graphs
+    # Charts
     # =================================================================
     # Bar chart of top friends by messages
     bar_chart_1 = utils.rank_msgs_barh(df, is_direct_msg=1)
@@ -51,14 +51,13 @@ def main():
     # =================================================================
     charts = {
         "time_series_all": time_series_all,
-
         "bar_chart_1": bar_chart_1,
         "bar_chart_2": bar_chart_2,
-
         "time_series_1": time_series_1,
         "time_series_2": time_series_2,
-
-        "plot_hour_day": hour_day.plot_hour_day()
+        "plot_hour_day": hour_day.plot_hour_day(),
+        "emoji_sent": emoji_sent,
+        "emoji_received": emoji_received
     }
 
     utils.output_html(
@@ -67,6 +66,5 @@ def main():
         hour_day_metrics = hour_day.metrics(),
         report_details = metrics.report_details())
 
-
 if __name__ == "__main__":
-    main()
+    app()
