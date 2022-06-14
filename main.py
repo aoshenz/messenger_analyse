@@ -3,11 +3,12 @@ import typer
 
 app = typer.Typer()
 
+
 @app.command()
 def main():
     # Data
     # =================================================================
-    
+
     data = utils.LoadData()
 
     df = data.import_data(
@@ -41,8 +42,12 @@ def main():
     top_senders_2 = utils.rank_msgs(df, top_n=20, is_direct_msg=0)
 
     # Time series by friend
-    time_series_1 = utils.time_plot(df, include_participants=top_senders_1, is_direct_msg=1)
-    time_series_2 = utils.time_plot(df, include_participants=top_senders_2, is_direct_msg=0)
+    time_series_1 = utils.time_plot(
+        df, include_participants=top_senders_1, is_direct_msg=1
+    )
+    time_series_2 = utils.time_plot(
+        df, include_participants=top_senders_2, is_direct_msg=0
+    )
 
     # Word Cloud
     # utils.wordcloud_plot(df)
@@ -57,14 +62,16 @@ def main():
         "time_series_2": time_series_2,
         "plot_hour_day": hour_day.plot_hour_day(),
         "emoji_sent": emoji_sent,
-        "emoji_received": emoji_received
+        "emoji_received": emoji_received,
     }
 
     utils.output_html(
-        overview_metrics = metrics.overview_metrics(),
-        charts = charts,
-        hour_day_metrics = hour_day.metrics(),
-        report_details = metrics.report_details())
+        overview_metrics=metrics.overview_metrics(),
+        charts=charts,
+        hour_day_metrics=hour_day.metrics(),
+        report_details=metrics.report_details(),
+    )
+
 
 if __name__ == "__main__":
     app()

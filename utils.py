@@ -36,6 +36,7 @@ def check_data_exists():
     # Check DATA_FROM/TIL is within data range of data
     None
 
+
 def full_name():
     """Returns your full name."""
 
@@ -47,8 +48,9 @@ def full_name():
 
     return "Eren Yaeger"  # DELETE
     return data["profile_v2"]["name"]["full_name"]
-class LoadData:
 
+
+class LoadData:
     def __init__(self):
         None
 
@@ -144,12 +146,10 @@ class LoadData:
         )  # TODO: change to MM:SS format
         return df
 
-
     def extract_emojis(self, content):
         list = [i for i in content if i in EMOJI_DATA]
 
         return " ".join(list) if len(list) > 0 else pd.NA
-
 
     def apply_adjustments(self, data):
         """Filters data based on dates selected in config."""
@@ -171,8 +171,8 @@ class LoadData:
         else:
             return data
 
-class Metrics:
 
+class Metrics:
     def __init__(self, data):
         self.data = data
 
@@ -203,14 +203,15 @@ class Metrics:
             "is_date_adj": is_date_adj,
         }
 
-
     def overview_metrics(self):
         """Dictionary of interesting metrics."""
 
         name = full_name()
 
         # Dates
-        data_date_diff = self.data["date"].max() - self.data["date"].min() + timedelta(days=1)
+        data_date_diff = (
+            self.data["date"].max() - self.data["date"].min() + timedelta(days=1)
+        )
         days_of_data = data_date_diff.days
 
         # Number of messages sent/received
@@ -297,6 +298,7 @@ def time_plot_all(data):
     fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
+
 
 def time_plot(data, include_participants=None, is_direct_msg=None):
     """Time series by friends."""
@@ -406,6 +408,7 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
+
 
 class HourDay:
     def __init__(self, data):
@@ -604,7 +607,14 @@ def plot_emoji_bar(data, is_from_me=None, top_n=20):
         header = "From others"
 
     emoji_count = emoji_count.head(top_n)
-    fig = px.bar(emoji_count, x="count", y="emoji", orientation="h", title=header, labels={"emoji": ""})
+    fig = px.bar(
+        emoji_count,
+        x="count",
+        y="emoji",
+        orientation="h",
+        title=header,
+        labels={"emoji": ""},
+    )
 
     fig.update_yaxes(dtick=1)
     fig.update_layout(yaxis={"categoryorder": "total ascending"})
