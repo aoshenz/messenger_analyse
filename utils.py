@@ -61,210 +61,203 @@ def full_name():
     return "Eren Yaeger"  # DELETE
     return data["profile_v2"]["name"]["full_name"]
 
-class LoadData:
-    def __init__(self):
-        None
 
-    def import_data(self, create_new_file=False, limit_files=None):
-        """
-        Import messenger data, drop unused columns, add flags and saves an output for future runs.
-        """
+def import_data(create_new_file=False, limit_files=None):
+    """
+    Import messenger data, drop unused columns, add flags and saves an output for future runs.
+    """
 
-        start_time = time.time()
+    start_time = time.time()
 
-        local_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
-        inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
+    local_file = pathlib.Path(__file__).parent.absolute() / "personal_data/df.gzip"
+    inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
 
-        if pathlib.Path(local_file).is_file() & create_new_file == False:
-            print(f"Importing previously saved output from: {local_file}")
-            df = pd.read_parquet(local_file)
-            print(f"Imported.")
-            return df
-
-        msg_folders = []
-        for path in pathlib.Path(inbox_folder).rglob("message_*.json"):
-            msg_folders.append(str(path))
-
-        if limit_files != None:
-            msg_folders = msg_folders[0:limit_files]
-
-        df = pd.DataFrame()
-        for i, msg_folder in enumerate(msg_folders):
-            with open(msg_folder) as f:
-                msg_json = json.load(f)
-
-            df_temp = pd.DataFrame(msg_json["messages"])
-            df_temp["file_path"] = msg_folder
-
-            # participant identifier
-            participants_list = []
-            for j, value in enumerate(msg_json["participants"]):
-                temp = list(msg_json["participants"][j].values())[0]
-
-                participants_list.append(temp)
-
-            participants_list = ",".join(participants_list)
-            df_temp["participants"] = participants_list
-
-            df = df.append(df_temp)
-
-            num_msg_folders = "{:,.0f}".format(len(msg_folders))
-            if (i + 1) % 50 == 0:
-                i_format = "{:,.0f}".format(i + 1)
-                print(f"{i_format} of {num_msg_folders} imported")
-
-        # columns to keep
-        col_to_keep = [
-            "participants",
-            "sender_name",
-            "timestamp_ms",
-            "content",
-            "type",
-            "file_path",
-        ]
-        df = df[col_to_keep]
-
-        # fix encoding e.g. emojis and apostrophes
-        df["content"] = df["content"].apply(
-            lambda x: str(x).encode("latin-1").decode("utf-8")
-        )
-
-        # # map timestamps TODO: automate correct timezone instead of assuming Sydney
-        df["date"] = (
-            pd.to_datetime(df["timestamp_ms"], unit="ms")
-            .dt.tz_localize("UTC")
-            .dt.tz_convert("Australia/Sydney")
-        )
-        df.drop("timestamp_ms", inplace=True, axis=1)
-
-        # metric variables
-        df["num_words"] = df["content"].str.split().str.len()
-        df["num_participants"] = df["participants"].str.split(",").str.len()
-
-        # emojis
-        df["emojis"] = df["content"].apply(self.extract_emojis)
-        df["has_emoji"] = np.where(df["emojis"].isna(), 0, 1)
-
-        df_length = "{:,.0f}".format(len(df))
-        print(f"Messages imported: {df_length}")
-
-        df.to_parquet(local_file, compression="gzip")
-        print(f"Saved a copy of the data here: {local_file}")
-
-        time_taken = time.time() - start_time
-        print(
-            f"Time taken: {round(time_taken/60, 2)} minutes"
-        )  # TODO: change to MM:SS format
+    if pathlib.Path(local_file).is_file() & create_new_file == False:
+        print(f"Importing previously saved output from: {local_file}")
+        df = pd.read_parquet(local_file)
+        print(f"Imported.")
         return df
 
-    def extract_emojis(self, content):
-        list = [i for i in content if i in EMOJI_DATA]
+    msg_folders = []
+    for path in pathlib.Path(inbox_folder).rglob("message_*.json"):
+        msg_folders.append(str(path))
 
-        return " ".join(list) if len(list) > 0 else pd.NA
+    if limit_files != None:
+        msg_folders = msg_folders[0:limit_files]
 
-    def apply_adjustments(self, data):
-        """Filters data based on dates selected in config."""
+    df = pd.DataFrame()
+    for i, msg_folder in enumerate(msg_folders):
+        with open(msg_folder) as f:
+            msg_json = json.load(f)
 
-        # Remap names # DELETE
-        data["sender_name"].replace(anon.mapping, inplace=True)
+        df_temp = pd.DataFrame(msg_json["messages"])
+        df_temp["file_path"] = msg_folder
 
-        # flags
-        name = full_name()
-        data["is_from_me"] = np.where(data["sender_name"] == name, 1, 0)
-        data["is_direct_msg"] = np.where(data["num_participants"] == 2, 1, 0)
+        # participant identifier
+        participants_list = []
+        for j, value in enumerate(msg_json["participants"]):
+            temp = list(msg_json["participants"][j].values())[0]
 
-        if (c.DATA_FROM != None) & (c.DATA_TIL != None):
-            return data[(data["date"] >= c.DATA_FROM) & (data["date"] <= c.DATA_TIL)]
-        elif c.DATA_FROM != None:
-            return data[data["date"] >= c.DATA_FROM]
-        elif c.DATA_TIL != None:
-            return data[data["date"] >= c.DATA_TIL]
+            participants_list.append(temp)
+
+        participants_list = ",".join(participants_list)
+        df_temp["participants"] = participants_list
+
+        df = df.append(df_temp)
+
+        num_msg_folders = "{:,.0f}".format(len(msg_folders))
+        if (i + 1) % 50 == 0:
+            i_format = "{:,.0f}".format(i + 1)
+            print(f"{i_format} of {num_msg_folders} imported")
+
+    # columns to keep
+    col_to_keep = [
+        "participants",
+        "sender_name",
+        "timestamp_ms",
+        "content",
+        "type",
+        "file_path",
+    ]
+    df = df[col_to_keep]
+
+    # fix encoding e.g. emojis and apostrophes
+    df["content"] = df["content"].apply(
+        lambda x: str(x).encode("latin-1").decode("utf-8")
+    )
+
+    # # map timestamps TODO: automate correct timezone instead of assuming Sydney
+    df["date"] = (
+        pd.to_datetime(df["timestamp_ms"], unit="ms")
+        .dt.tz_localize("UTC")
+        .dt.tz_convert("Australia/Sydney")
+    )
+    df.drop("timestamp_ms", inplace=True, axis=1)
+
+    # metric variables
+    df["num_words"] = df["content"].str.split().str.len()
+    df["num_participants"] = df["participants"].str.split(",").str.len()
+
+    # emojis
+    df["emojis"] = df["content"].apply(extract_emojis)
+    df["has_emoji"] = np.where(df["emojis"].isna(), 0, 1)
+
+    df_length = "{:,.0f}".format(len(df))
+    print(f"Messages imported: {df_length}")
+
+    df.to_parquet(local_file, compression="gzip")
+    print(f"Saved a copy of the data here: {local_file}")
+
+    time_taken = time.time() - start_time
+    print(
+        f"Time taken: {round(time_taken/60, 2)} minutes"
+    )  # TODO: change to MM:SS format
+    return df
+
+def extract_emojis(content):
+    list = [i for i in content if i in EMOJI_DATA]
+
+    return " ".join(list) if len(list) > 0 else pd.NA
+
+def apply_adjustments(data):
+    """Filters data based on dates selected in config."""
+
+    # Remap names # DELETE
+    data["sender_name"].replace(anon.mapping, inplace=True)
+
+    # flags
+    name = full_name()
+    data["is_from_me"] = np.where(data["sender_name"] == name, 1, 0)
+    data["is_direct_msg"] = np.where(data["num_participants"] == 2, 1, 0)
+
+    if (c.DATA_FROM != None) & (c.DATA_TIL != None):
+        return data[(data["date"] >= c.DATA_FROM) & (data["date"] <= c.DATA_TIL)]
+    elif c.DATA_FROM != None:
+        return data[data["date"] >= c.DATA_FROM]
+    elif c.DATA_TIL != None:
+        return data[data["date"] >= c.DATA_TIL]
+    else:
+        return data
+
+
+def report_details(data):
+    """Dictionary of report details used for analysis output."""
+
+    # Name
+    name = full_name()
+
+    # Run time
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Earliest data date
+    date_min = data["date"].dt.date.min()
+
+    # Latest data date
+    date_max = data["date"].dt.date.max()
+
+    # Flag if data has been subsetted
+    is_date_adj = 1 if (c.DATA_FROM != None) | (c.DATA_TIL != None) else 0
+
+    return {
+        "full_name": name,
+        "now": now,
+        "date_min": date_min,
+        "date_max": date_max,
+        "ma_days": c.MOVING_AVG_DAYS,
+        "is_date_adj": is_date_adj,
+    }
+
+def overview_metrics(data):
+    """Dictionary of interesting metrics."""
+
+    name = full_name()
+
+    # Dates
+    data_date_diff = (
+        data["date"].max() - data["date"].min() + timedelta(days=1)
+    )
+    days_of_data = data_date_diff.days
+
+    # Number of messages sent/received
+    msg_sent = data[data["sender_name"] == name]["content"].count()
+    msg_received = data[data["sender_name"] != name]["content"].count()
+
+    # Number of words sent/received
+    words_sent = data[data["sender_name"] == name]["num_words"].sum()
+    words_received = data[data["sender_name"] != name]["num_words"].sum()
+
+    # Average words per message sent/received
+    words_per_msg_sent = words_sent / msg_sent
+    words_per_msg_received = words_received / msg_received
+
+    # Average number of messages per day
+    msg_per_day_sent = msg_sent / days_of_data
+    msg_per_day_received = msg_received / days_of_data
+
+    var_list = [
+        "days_of_data",
+        "msg_sent",
+        "msg_received",
+        "words_sent",
+        "words_received",
+        "words_per_msg_sent",
+        "words_per_msg_received",
+        "msg_per_day_sent",
+        "msg_per_day_received",
+    ]
+
+    dict = {}
+    for i in var_list:
+        num = eval(i)
+
+        if num >= 10:
+            num_formatted = "{:,.0f}".format(num)
         else:
-            return data
+            num_formatted = "{:.2f}".format(num)
 
+        dict[i] = num_formatted
 
-class Metrics:
-    def __init__(self, data):
-        self.data = data
-
-    def report_details(self):
-        """Dictionary of report details used for analysis output."""
-
-        # Name
-        name = full_name()
-
-        # Run time
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Earliest data date
-        date_min = self.data["date"].dt.date.min()
-
-        # Latest data date
-        date_max = self.data["date"].dt.date.max()
-
-        # Flag if data has been subsetted
-        is_date_adj = 1 if (c.DATA_FROM != None) | (c.DATA_TIL != None) else 0
-
-        return {
-            "full_name": name,
-            "now": now,
-            "date_min": date_min,
-            "date_max": date_max,
-            "ma_days": c.MOVING_AVG_DAYS,
-            "is_date_adj": is_date_adj,
-        }
-
-    def overview_metrics(self):
-        """Dictionary of interesting metrics."""
-
-        name = full_name()
-
-        # Dates
-        data_date_diff = (
-            self.data["date"].max() - self.data["date"].min() + timedelta(days=1)
-        )
-        days_of_data = data_date_diff.days
-
-        # Number of messages sent/received
-        msg_sent = self.data[self.data["sender_name"] == name]["content"].count()
-        msg_received = self.data[self.data["sender_name"] != name]["content"].count()
-
-        # Number of words sent/received
-        words_sent = self.data[self.data["sender_name"] == name]["num_words"].sum()
-        words_received = self.data[self.data["sender_name"] != name]["num_words"].sum()
-
-        # Average words per message sent/received
-        words_per_msg_sent = words_sent / msg_sent
-        words_per_msg_received = words_received / msg_received
-
-        # Average number of messages per day
-        msg_per_day_sent = msg_sent / days_of_data
-        msg_per_day_received = msg_received / days_of_data
-
-        var_list = [
-            "days_of_data",
-            "msg_sent",
-            "msg_received",
-            "words_sent",
-            "words_received",
-            "words_per_msg_sent",
-            "words_per_msg_received",
-            "msg_per_day_sent",
-            "msg_per_day_received",
-        ]
-
-        dict = {}
-        for i in var_list:
-            num = eval(i)
-
-            if num >= 10:
-                num_formatted = "{:,.0f}".format(num)
-            else:
-                num_formatted = "{:.2f}".format(num)
-
-            dict[i] = num_formatted
-
-        return dict
+    return dict
 
 
 def time_plot_all(data):
@@ -421,59 +414,56 @@ def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 
-class HourDay:
-    def __init__(self, data):
-        self.data = data
 
-    def data_count(self):
-        self.data["day"] = self.data["date"].dt.day_name()
-        self.data["hour"] = self.data["date"].dt.hour
+def data_count(data):
+    data["day"] = data["date"].dt.day_name()
+    data["hour"] = data["date"].dt.hour
 
-        return self.data.groupby(["hour", "day"], as_index=False)["content"].count()
+    return data.groupby(["hour", "day"], as_index=False)["content"].count()
 
-    def plot_hour_day(self):
-        """Plot bar chart of messages in a 24h period segmented by day of the week."""
+def plot_hour_day(data):
+    """Plot bar chart of messages in a 24h period segmented by day of the week."""
 
-        df_msg_count = self.data_count()
+    df_msg_count = data_count(data)
 
-        fig = px.bar(
-            df_msg_count,
-            x="hour",
-            y="content",
-            color="day",
-            labels={"hour": "Hour", "content": "Daily messages", "day": "Day"},
-            category_orders={
-                "day": [
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                ]
-            },
-        )
-        fig.update_xaxes(dtick=1)
-        fig.update_layout(layout)
+    fig = px.bar(
+        df_msg_count,
+        x="hour",
+        y="content",
+        color="day",
+        labels={"hour": "Hour", "content": "Daily messages", "day": "Day"},
+        category_orders={
+            "day": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+            ]
+        },
+    )
+    fig.update_xaxes(dtick=1)
+    fig.update_layout(layout)
 
-        return fig.to_html(full_html=False, include_plotlyjs=True)
+    return fig.to_html(full_html=False, include_plotlyjs=True)
 
-    def metrics(self):
+def hour_day_metrics(data):
 
-        df_msg_count = self.data_count().sort_values(["content"], ascending=False)
+    df_msg_count = data_count(data).sort_values(["content"], ascending=False)
 
-        hour24 = df_msg_count.iloc[0, 0]
-        if hour24 == 0:
-            hour = "12am"
-        elif hour24 >= 12:
-            hour = str(hour24 - 12) + "pm"
-        else:
-            hour = str(hour24) + "am"
+    hour24 = df_msg_count.iloc[0, 0]
+    if hour24 == 0:
+        hour = "12am"
+    elif hour24 >= 12:
+        hour = str(hour24 - 12) + "pm"
+    else:
+        hour = str(hour24) + "am"
 
-        day = df_msg_count.iloc[0, 1]
+    day = df_msg_count.iloc[0, 1]
 
-        return {"hour": hour, "day": day}
+    return {"hour": hour, "day": day}
 
 
 def wordcloud_plot(data):

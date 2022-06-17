@@ -8,9 +8,7 @@ def main():
     # Data
     # =================================================================
 
-    data = utils.LoadData()
-
-    df = data.import_data(
+    df = utils.import_data(
         create_new_file=False, limit_files=None  # toggle to True if you need to update
     )
 
@@ -18,10 +16,10 @@ def main():
     time_series_all = utils.time_plot_all(df)
 
     # Apply global data adjustments
-    df = data.apply_adjustments(df)
+    df = utils.apply_adjustments(df)
 
     # Get report details and metrics
-    metrics = utils.Metrics(df)
+    metrics = utils.overview_metrics(df)
 
     # Charts
     # =================================================================
@@ -46,7 +44,7 @@ def main():
     emoji_received = utils.plot_emoji_bar(df, is_from_me=0)
 
     # Stacked bar chart by time of the day
-    hour_day = utils.HourDay(df)
+    hour_day = utils.plot_hour_day(df)
 
     # Word Cloud
     # utils.wordcloud_plot(df)
@@ -59,16 +57,16 @@ def main():
         "bar_chart_2": bar_chart_2,
         "time_series_1": time_series_1,
         "time_series_2": time_series_2,
-        "plot_hour_day": hour_day.plot_hour_day(),
+        "plot_hour_day": hour_day,
         "emoji_sent": emoji_sent,
         "emoji_received": emoji_received,
     }
 
     utils.output_html(
-        overview_metrics=metrics.overview_metrics(),
+        overview_metrics=metrics,
         charts=charts,
-        hour_day_metrics=hour_day.metrics(),
-        report_details=metrics.report_details(),
+        hour_day_metrics=utils.hour_day_metrics(df),
+        report_details=utils.report_details(df),
     )
 
 
