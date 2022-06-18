@@ -4,19 +4,20 @@ The goal of this simple package is to help you better understand your Facebook M
 
 To see what the analysis file will look like, see [here](https://github.com/aoshenz/messenger_analyse/blob/master/example/output_example.html) for an example. Below are some snippets from this file.
 
-![Headline](images/headline.png)
-![Trends](images/trends.png)
+<img src="images/headline.png" alt="drawing" width="600"/>
+<img src="images/trends.png" alt="drawing" width="600"/>
 
 # Installation
 1. Go to your Facebook [settings](https://www.facebook.com/dyi/?referrer=yfi_settings) > 'Your Facebook Information' > 'Download Your Information' and at a minimum you need to choose these options:
 - JSON format
 - All time date range
 - And check the boxes for 'Messages', 'Profile information' and 'Friends and followers'
+
 It takes up to a few days for Facebook to gather this information before you can download it.
-![JSON](images/fb_json.png)
-![Message](images/fb_msg.png)
-![Profile](images/fb_profile.png)
-![Friends](images/fb_friends.png)
+<img src="images/fb_json.png" alt="drawing" width="600"/>
+<img src="images/fb_msg.png" alt="drawing" width="600"/>
+<img src="images/fb_profile.png" alt="drawing" width="600"/>
+<img src="images/fb_friends.png" alt="drawing" width="600"/>
 2. Meanwhile, clone this repository.
 `Instructions here`
 3. Within 'messenger_analyse', create a folder called 'personal_data'. Your Facebook data should be in a `.zip` file. Unzip that file here. So your folder structure should look like: 
