@@ -1,74 +1,38 @@
 import utils as utils
+from messenger import Messenger
 import typer
 
 app = typer.Typer()
 
 @app.command()
 def main():
-    # Data
-    # =================================================================
 
-    df = utils.import_data(
-        create_new_file=False, limit_files=None  # toggle to True if you need to update
-    )
+    msg = Messenger()
 
-    # Show activity before adjustments
-    time_series_all = utils.time_plot_all(df)
+    msg.analyse()
 
-    # Apply global data adjustments
-    df = utils.apply_adjustments(df)
+    # testing
+    print(msg.data_all.head(10))
+    print(msg.data_adj.head(10))
+    print(msg.report_details)
 
-    # Get report details and metrics
-    metrics = utils.overview_metrics(df)
-
-    # Charts
-    # =================================================================
-    # Bar chart of top friends by messages
-    bar_chart_1 = utils.rank_msgs_barh(df, is_direct_msg=1)
-    bar_chart_2 = utils.rank_msgs_barh(df, is_direct_msg=0)
-
-    # Rank top senders
-    top_senders_1 = utils.rank_msgs(df, top_n=20, is_direct_msg=1)
-    top_senders_2 = utils.rank_msgs(df, top_n=20, is_direct_msg=0)
-
-    # Time series by friend
-    time_series_1 = utils.time_plot(
-        df, include_participants=top_senders_1, is_direct_msg=1
-    )
-    time_series_2 = utils.time_plot(
-        df, include_participants=top_senders_2, is_direct_msg=0
-    )
-
-    # Emojis
-    emoji_sent = utils.plot_emoji_bar(df, is_from_me=1)
-    emoji_received = utils.plot_emoji_bar(df, is_from_me=0)
-
-    # Stacked bar chart by time of the day
-    hour_day = utils.plot_hour_day(df)
-
-    # Word Cloud
-    # utils.wordcloud_plot(df)
-
-    # Output results
-    # =================================================================
     charts = {
-        "time_series_all": time_series_all,
-        "bar_chart_1": bar_chart_1,
-        "bar_chart_2": bar_chart_2,
-        "time_series_1": time_series_1,
-        "time_series_2": time_series_2,
-        "plot_hour_day": hour_day,
-        "emoji_sent": emoji_sent,
-        "emoji_received": emoji_received,
+        "time_series_all": msg.timeseries_all,
+        "bar_chart_1": msg.bar_chart_1,
+        "bar_chart_2": msg.bar_chart_2,
+        "time_series_1": msg.timeseries_1,
+        "time_series_2": msg.timeseries_2,
+        "plot_hour_day": msg.time_of_day,
+        "emoji_sent": msg.emoji_sent,
+        "emoji_received": msg.emoji_received,
     }
 
     utils.output_html(
-        overview_metrics=metrics,
+        overview_metrics=msg.overview_metrics,
         charts=charts,
-        hour_day_metrics=utils.hour_day_metrics(df),
-        report_details=utils.report_details(df),
+        hour_day_metrics=msg.hour_day_metrics,
+        report_details=msg.report_details,
     )
-
 
 if __name__ == "__main__":
     app()

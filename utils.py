@@ -374,7 +374,7 @@ def rank_msgs(data, top_n=20, is_direct_msg=None):
 
 
 # TODO: need to refactor this function
-def rank_msgs_barh(data, top_n=20, is_direct_msg=None):
+def plot_msgs_barh(data, top_n=20, is_direct_msg=None):
     """Plot a horizontal bar chart by friend and number of messages."""
 
     if is_direct_msg != None:
