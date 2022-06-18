@@ -7,7 +7,7 @@ class Messenger:
     def analyse(self):
         
         self.get_data()
-        self.metrics()
+        self.get_metrics()
         self.get_charts()
 
         return None
@@ -22,7 +22,7 @@ class Messenger:
 
         return None
 
-    def metrics(self):
+    def get_metrics(self):
 
         self.report_details = utils.report_details(self.data_adj)
         self.overview_metrics = utils.overview_metrics(self.data_adj)

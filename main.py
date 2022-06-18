@@ -8,13 +8,7 @@ app = typer.Typer()
 def main():
 
     msg = Messenger()
-
     msg.analyse()
-
-    # testing
-    print(msg.data_all.head(10))
-    print(msg.data_adj.head(10))
-    print(msg.report_details)
 
     charts = {
         "time_series_all": msg.timeseries_all,
