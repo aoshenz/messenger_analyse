@@ -15,10 +15,13 @@ To see what the analysis file will look like, see [here](https://github.com/aosh
 - And check the boxes for 'Messages', 'Profile information' and 'Friends and followers'
 
 It takes up to a few days for Facebook to gather this information before you can download it.
+<div align="center">
 <img src="images/fb_json.png" alt="drawing" width="600"/>
 <img src="images/fb_msg.png" alt="drawing" width="600"/>
 <img src="images/fb_profile.png" alt="drawing" width="600"/>
 <img src="images/fb_friends.png" alt="drawing" width="600"/>
+</div>
+
 
 2. Meanwhile, clone this repository.
 `Insert instructions here`
