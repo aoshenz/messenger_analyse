@@ -36,8 +36,10 @@ def check_data_exists():
     try:
         full_name()
     except:
-        print("Failed to gather your name. \nCheck you have downloaded 'Personal Information' and that this file exists 'profile_information.json'")
-        
+        print(
+            "Failed to gather your name. \nCheck you have downloaded 'Personal Information' and that this file exists 'profile_information.json'"
+        )
+
         errors += 1
 
     print(f"Number of errors: {errors}")
@@ -157,10 +159,12 @@ def import_data(create_new_file=False, limit_files=None):
     )  # TODO: change to MM:SS format
     return df
 
+
 def extract_emojis(content):
     list = [i for i in content if i in EMOJI_DATA]
 
     return " ".join(list) if len(list) > 0 else pd.NA
+
 
 def apply_adjustments(df):
     """Filters data based on dates selected in config."""
@@ -170,13 +174,18 @@ def apply_adjustments(df):
     # Remap names # DELETE
     data["sender_name"].replace(anon.mapping, inplace=True)
 
+    # Keep only 'Messages'
+    data = data[data["type"] == "Generic"]
+
     # flags
     name = full_name()
     data["is_from_me"] = np.where(data["sender_name"] == name, 1, 0)
     data["is_direct_msg"] = np.where(data["num_participants"] == 2, 1, 0)
 
     if (c.DATA_FROM != None) & (c.DATA_TIL != None):
-        return data[(data["datetime"] >= c.DATA_FROM) & (data["datetime"] <= c.DATA_TIL)]
+        return data[
+            (data["datetime"] >= c.DATA_FROM) & (data["datetime"] <= c.DATA_TIL)
+        ]
     elif c.DATA_FROM != None:
         return data[data["datetime"] >= c.DATA_FROM]
     elif c.DATA_TIL != None:
@@ -212,15 +221,14 @@ def report_details(df):
         "is_date_adj": is_date_adj,
     }
 
+
 def overview_metrics(df):
     """Dictionary of interesting metrics."""
 
     name = full_name()
 
     # Dates
-    data_date_diff = (
-        df["date"].max() - df["date"].min() + timedelta(days=1)
-    )
+    data_date_diff = df["date"].max() - df["date"].min() + timedelta(days=1)
     days_of_data = data_date_diff.days
 
     # Number of messages sent/received
@@ -421,7 +429,6 @@ def plot_msgs_barh(df, top_n=20, is_direct_msg=None):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 
-
 def data_count(df):
 
     data = df.copy()
@@ -430,6 +437,7 @@ def data_count(df):
     data["hour"] = data["datetime"].dt.hour
 
     return data.groupby(["hour", "day"], as_index=False)["content"].count()
+
 
 def plot_hour_day(df):
     """Plot bar chart of messages in a 24h period segmented by day of the week."""
@@ -458,6 +466,7 @@ def plot_hour_day(df):
     fig.update_layout(layout)
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
+
 
 def hour_day_metrics(df):
 
@@ -595,6 +604,7 @@ def output_html(**kwargs):
 
 #     None
 
+
 def emoji_counter(df, is_from_me=None):
 
     data = df[df["has_emoji"] == 1]
@@ -612,6 +622,7 @@ def emoji_counter(df, is_from_me=None):
     )
 
     return emoji_count
+
 
 def plot_emoji_bar(df, is_from_me=None, top_n=20):
 
