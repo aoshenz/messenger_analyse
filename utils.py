@@ -1,4 +1,5 @@
 from ast import Pass
+from lib2to3.pgen2.pgen import DFAState
 from unicodedata import category
 from xml.etree.ElementInclude import include
 import matplotlib.pyplot as plt
@@ -127,12 +128,14 @@ def import_data(create_new_file=False, limit_files=None):
     )
 
     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
-    df["date"] = (
+    df["datetime"] = (
         pd.to_datetime(df["timestamp_ms"], unit="ms")
         .dt.tz_localize("UTC")
         .dt.tz_convert("Australia/Sydney")
     )
     df.drop("timestamp_ms", inplace=True, axis=1)
+
+    df["date"] = df["datetime"].dt.date
 
     # metric variables
     df["num_words"] = df["content"].str.split().str.len()
@@ -159,8 +162,10 @@ def extract_emojis(content):
 
     return " ".join(list) if len(list) > 0 else pd.NA
 
-def apply_adjustments(data):
+def apply_adjustments(df):
     """Filters data based on dates selected in config."""
+
+    data = df.copy()
 
     # Remap names # DELETE
     data["sender_name"].replace(anon.mapping, inplace=True)
@@ -171,16 +176,16 @@ def apply_adjustments(data):
     data["is_direct_msg"] = np.where(data["num_participants"] == 2, 1, 0)
 
     if (c.DATA_FROM != None) & (c.DATA_TIL != None):
-        return data[(data["date"] >= c.DATA_FROM) & (data["date"] <= c.DATA_TIL)]
+        return data[(data["datetime"] >= c.DATA_FROM) & (data["datetime"] <= c.DATA_TIL)]
     elif c.DATA_FROM != None:
-        return data[data["date"] >= c.DATA_FROM]
+        return data[data["datetime"] >= c.DATA_FROM]
     elif c.DATA_TIL != None:
-        return data[data["date"] >= c.DATA_TIL]
+        return data[data["datetime"] >= c.DATA_TIL]
     else:
         return data
 
 
-def report_details(data):
+def report_details(df):
     """Dictionary of report details used for analysis output."""
 
     # Name
@@ -190,10 +195,10 @@ def report_details(data):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Earliest data date
-    date_min = data["date"].dt.date.min()
+    date_min = df["date"].min()
 
     # Latest data date
-    date_max = data["date"].dt.date.max()
+    date_max = df["date"].max()
 
     # Flag if data has been subsetted
     is_date_adj = 1 if (c.DATA_FROM != None) | (c.DATA_TIL != None) else 0
@@ -207,24 +212,24 @@ def report_details(data):
         "is_date_adj": is_date_adj,
     }
 
-def overview_metrics(data):
+def overview_metrics(df):
     """Dictionary of interesting metrics."""
 
     name = full_name()
 
     # Dates
     data_date_diff = (
-        data["date"].max() - data["date"].min() + timedelta(days=1)
+        df["date"].max() - df["date"].min() + timedelta(days=1)
     )
     days_of_data = data_date_diff.days
 
     # Number of messages sent/received
-    msg_sent = data[data["sender_name"] == name]["content"].count()
-    msg_received = data[data["sender_name"] != name]["content"].count()
+    msg_sent = df[df["sender_name"] == name]["content"].count()
+    msg_received = df[df["sender_name"] != name]["content"].count()
 
     # Number of words sent/received
-    words_sent = data[data["sender_name"] == name]["num_words"].sum()
-    words_received = data[data["sender_name"] != name]["num_words"].sum()
+    words_sent = df[df["sender_name"] == name]["num_words"].sum()
+    words_received = df[df["sender_name"] != name]["num_words"].sum()
 
     # Average words per message sent/received
     words_per_msg_sent = words_sent / msg_sent
@@ -260,16 +265,15 @@ def overview_metrics(data):
     return dict
 
 
-def time_plot_all(data):
+def time_plot_all(df):
     """Time series for all messages received. Not grouping by friends."""
 
     name = full_name()
 
-    data["zzdate"] = data["date"].dt.date
-    data = data[data["sender_name"] != name]
+    data = df[df["sender_name"] != name]
 
     # fill in 0 value for dates with 0 messages
-    plot_data = data.groupby("zzdate")["content"].count()
+    plot_data = data.groupby("date")["content"].count()
     date_range = pd.date_range(plot_data.index.min(), plot_data.index.max())
     plot_data = plot_data.reindex(date_range, fill_value=0)
     plot_data = plot_data.reset_index().rename(
@@ -283,8 +287,8 @@ def time_plot_all(data):
 
     # highlight section of analysis if data is subsetted
     if (c.DATA_FROM != None) | (c.DATA_FROM != None):
-        x_start = c.DATA_FROM or data["zzdate"].min()
-        x_end = c.DATA_TIL or data["zzdate"].max()
+        x_start = c.DATA_FROM or data["date"].min()
+        x_end = c.DATA_TIL or data["date"].max()
 
         x_start = pd.to_datetime(x_start)
         x_end = pd.to_datetime(x_end)
@@ -304,21 +308,20 @@ def time_plot_all(data):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 
-def time_plot(data, include_participants=None, is_direct_msg=None):
+def time_plot(df, include_participants=None, is_direct_msg=None):
     """Time series by friends."""
+
+    data = df.copy()
 
     if is_direct_msg != None:
         data = data[data["is_direct_msg"] == is_direct_msg]
-
-    # format dates
-    data["zzdate"] = data["date"].dt.date
 
     plot_data = pd.DataFrame()
     if include_participants != None:
         for person in include_participants:
             temp = data[data["sender_name"].str.lower().str.contains(person.lower())]
 
-            temp = temp.groupby("zzdate")["content"].count()
+            temp = temp.groupby("date")["content"].count()
 
             # fill in 0 value for dates with 0 messages
             date_range = pd.date_range(temp.index.min(), temp.index.max())
@@ -351,8 +354,10 @@ def time_plot(data, include_participants=None, is_direct_msg=None):
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 
-def rank_msgs(data, top_n=20, is_direct_msg=None):
+def rank_msgs(df, top_n=20, is_direct_msg=None):
     """Return a list of top n friends by number of messages."""
+
+    data = df.copy()
 
     if is_direct_msg != None:
         data = data[data["is_direct_msg"] == is_direct_msg]
@@ -374,8 +379,10 @@ def rank_msgs(data, top_n=20, is_direct_msg=None):
 
 
 # TODO: need to refactor this function
-def plot_msgs_barh(data, top_n=20, is_direct_msg=None):
+def plot_msgs_barh(df, top_n=20, is_direct_msg=None):
     """Plot a horizontal bar chart by friend and number of messages."""
+
+    data = df.copy()
 
     if is_direct_msg != None:
         data = data[data["is_direct_msg"] == is_direct_msg]
@@ -415,16 +422,19 @@ def plot_msgs_barh(data, top_n=20, is_direct_msg=None):
 
 
 
-def data_count(data):
-    data["day"] = data["date"].dt.day_name()
-    data["hour"] = data["date"].dt.hour
+def data_count(df):
+
+    data = df.copy()
+
+    data["day"] = data["datetime"].dt.day_name()
+    data["hour"] = data["datetime"].dt.hour
 
     return data.groupby(["hour", "day"], as_index=False)["content"].count()
 
-def plot_hour_day(data):
+def plot_hour_day(df):
     """Plot bar chart of messages in a 24h period segmented by day of the week."""
 
-    df_msg_count = data_count(data)
+    df_msg_count = data_count(df)
 
     fig = px.bar(
         df_msg_count,
@@ -449,9 +459,9 @@ def plot_hour_day(data):
 
     return fig.to_html(full_html=False, include_plotlyjs=True)
 
-def hour_day_metrics(data):
+def hour_day_metrics(df):
 
-    df_msg_count = data_count(data).sort_values(["content"], ascending=False)
+    df_msg_count = data_count(df).sort_values(["content"], ascending=False)
 
     hour24 = df_msg_count.iloc[0, 0]
     if hour24 == 0:
@@ -466,10 +476,10 @@ def hour_day_metrics(data):
     return {"hour": hour, "day": day}
 
 
-def wordcloud_plot(data):
+def wordcloud_plot(df):
     """Plot a wordcloud"""
 
-    data = data[data["num_words"] > 0]
+    data = df[df["num_words"] > 0]
 
     text = " ".join(msg for msg in data["content"])
     print(f"There are {len(text)} words.")
@@ -487,21 +497,21 @@ def wordcloud_plot(data):
     plt.show()
 
 
-def first_msg(data, include_participants=None):
+def first_msg(df, include_participants=None):
     """Get the first message from each friend."""
 
     if include_participants == None:
-        include_participants = rank_msgs(data, top_n=20, is_direct_msg=1)
+        include_participants = rank_msgs(df, top_n=20, is_direct_msg=1)
 
     standard_fb_msg = [
         "You can now message and call each other and see info like Active Status and when you've read messages.",
         "You are now connected on Messenger",
     ]
 
-    data = data[
-        (data["sender_name"].isin(include_participants))
-        & (data["is_direct_msg"] == 1)
-        & (~data["content"].isin(standard_fb_msg))
+    data = df[
+        (df["sender_name"].isin(include_participants))
+        & (df["is_direct_msg"] == 1)
+        & (~df["content"].isin(standard_fb_msg))
     ]
 
     first_msg = data.sort_values("date").groupby("sender_name", as_index=False).first()
@@ -533,61 +543,61 @@ def output_html(**kwargs):
 
 
 # Table of friends
-def friends():
-    inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
+# def friends():
+#     inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
 
-    for path in pathlib.Path(inbox_folder).rglob("friends.json"):
-        with open(path) as f:
-            friends_json = json.load(f)
+#     for path in pathlib.Path(inbox_folder).rglob("friends.json"):
+#         with open(path) as f:
+#             friends_json = json.load(f)
 
-    df = pd.DataFrame(friends_json["friends_v2"])
-    df["name"] = df["name"].apply(lambda x: str(x).encode("latin-1").decode("utf-8"))
+#     df = pd.DataFrame(friends_json["friends_v2"])
+#     df["name"] = df["name"].apply(lambda x: str(x).encode("latin-1").decode("utf-8"))
 
-    # # map timestamps TODO: automate correct timezone instead of assuming Sydney
-    df["date"] = (
-        pd.to_datetime(df["timestamp"] * 1000, unit="ms")
-        .dt.tz_localize("UTC")
-        .dt.tz_convert("Australia/Sydney")
-    )
+#     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
+#     df["date"] = (
+#         pd.to_datetime(df["timestamp"] * 1000, unit="ms")
+#         .dt.tz_localize("UTC")
+#         .dt.tz_convert("Australia/Sydney")
+#     )
 
-    keep = ["name", "date"]
-    df = df[keep]
+#     keep = ["name", "date"]
+#     df = df[keep]
 
-    return df
+#     return df
 
 
-def friends_plot():
+# def friends_plot():
 
-    data = friends()
+#     data = friends()
 
-    data["date_mth"] = data["date"].dt.date.apply(lambda x: x.replace(day=1))
+#     data["date_mth"] = data["date"].dt.date.apply(lambda x: x.replace(day=1))
 
-    data = data.groupby("date_mth", as_index=False)["name"].count()
+#     data = data.groupby("date_mth", as_index=False)["name"].count()
 
-    fig = px.bar(
-        data,
-        x="date_mth",
-        y="name",
-        labels={"date_mth": "Date", "name": "Number of new friends"},
-    )
+#     fig = px.bar(
+#         data,
+#         x="date_mth",
+#         y="name",
+#         labels={"date_mth": "Date", "name": "Number of new friends"},
+#     )
 
-    return fig.to_html(full_html=False, include_plotlyjs=True)
+#     return fig.to_html(full_html=False, include_plotlyjs=True)
 
 
 # Interesting stats
-def interesting_stats(data):
+# def interesting_stats(data):
 
-    data = friends()
+#     data = friends()
 
-    # friends TODO: this doesn't reconcile??
-    num_friends = len(data)
-    first_friend = data[data["date"] == data["date"].min()]["name"].iloc[0]
+#     # friends TODO: this doesn't reconcile??
+#     num_friends = len(data)
+#     first_friend = data[data["date"] == data["date"].min()]["name"].iloc[0]
 
-    None
+#     None
 
-def emoji_counter(data, is_from_me=None):
+def emoji_counter(df, is_from_me=None):
 
-    data = data[data["has_emoji"] == 1]
+    data = df[df["has_emoji"] == 1]
 
     if is_from_me != None:
         data = data[data["is_from_me"] == is_from_me]
@@ -603,9 +613,9 @@ def emoji_counter(data, is_from_me=None):
 
     return emoji_count
 
-def plot_emoji_bar(data, is_from_me=None, top_n=20):
+def plot_emoji_bar(df, is_from_me=None, top_n=20):
 
-    emoji_count = emoji_counter(data=data, is_from_me=is_from_me)
+    emoji_count = emoji_counter(df=df, is_from_me=is_from_me)
     emoji_count = emoji_count.head(top_n)
 
     if is_from_me == 1:

@@ -4,17 +4,19 @@ The goal of this simple package is to help you better understand your Facebook M
 
 To see what the analysis file will look like, see [here](https://github.com/aoshenz/messenger_analyse/blob/master/example/output_example.html) for an example. Below are some snippets from this file.
 
-<img src="images/headline.png" alt="drawing" width="800"/>
+<div align="center">
+<img src="images/headline.png" alt="drawing" width="600"/>
 <img src="images/trends.png" alt="drawing" width="800"/>
+</div>
 
-## Installation
+## How to set up
 
 1. Go to your Facebook [settings](https://www.facebook.com/dyi/?referrer=yfi_settings) > 'Your Facebook Information' > 'Download Your Information' and at a minimum you need to choose these options:
-- JSON format
-- All time date range
-- And check the boxes for 'Messages', 'Profile information' and 'Friends and followers'
+    - File optins in JSON format
+    - All time date range
+    - Check the boxes for 'Messages', 'Profile information' and 'Friends and followers'
 
-It takes up to a few days for Facebook to gather this information before you can download it.
+    It takes up to a few days for Facebook to gather this information before you can download it.
 <div align="center">
 <img src="images/fb_json.png" alt="drawing" width="600"/>
 <img src="images/fb_msg.png" alt="drawing" width="600"/>
@@ -30,7 +32,16 @@ messenger_analyse (this repo) > personal_data (folder you created) > facebook-yo
 4. Create a virtual environment and install packages from `requirements.txt`.
 
 
-## Usage
+## How to use
+
+```python
+Sample terminal code here.
+```
+
+```python
+Sample code here.
+```
+
 ### Definitions
 - Words
 - Messages
@@ -50,6 +61,7 @@ messenger_analyse (this repo) > personal_data (folder you created) > facebook-yo
 - Samples
     - First message to a person!
 - Net friends over time
+- Calls
 - External data
     - Weather
 ### Code

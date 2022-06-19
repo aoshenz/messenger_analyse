@@ -1,8 +1,8 @@
 import utils as utils
 class Messenger:
 
-    def __init__(self):
-        pass
+    def __init__(self, clean_run=False):
+        self.clean_run = clean_run
 
     def analyse(self):
         
@@ -14,7 +14,7 @@ class Messenger:
 
     def get_data(self):
 
-        data_all = utils.import_data(create_new_file=False, limit_files=None)
+        data_all = utils.import_data(create_new_file=self.clean_run, limit_files=None)
         data_adj = utils.apply_adjustments(data_all)
 
         self.data_all = data_all
