@@ -5,7 +5,6 @@ import typer
 
 app = typer.Typer()
 
-
 @app.command()
 def main():
 
@@ -29,7 +28,6 @@ def main():
         hour_day_metrics=msg.hour_day_metrics,
         report_details=msg.report_details,
     )
-
 
 if __name__ == "__main__":
     app()

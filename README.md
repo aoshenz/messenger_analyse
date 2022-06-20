@@ -38,7 +38,7 @@ messenger_analyse (this repo) > personal_data (folder you created) > facebook-yo
 
 
 ## How to use
-After you have completed the steps above, you are now ready to run this script.
+After you have completed the steps above, you are now ready to run this script. The first run of this script may take a few minutes as it imports your data. It'll save a copy as `/messenger_analyse/personal_data/df.gzip`, where it is used for quicker subsequent re-runs.
 ### Run from terminal
 1. Change directory to this cloned repo.
 2. Run `python3 main.py`.
@@ -49,7 +49,7 @@ For example:
 ```
 
 ### Run from notebook
-The `Messenger` class contains methods and attributes allowing you to do further exploration. The code below is an example of some useful attributes to help you get started.
+The `Messenger` class contains methods and attributes allowing you to do further exploration. The code below is an example of some useful attributes to help you get started. See [explore.ipynb](https://github.com/aoshenz/messenger_analyse/blob/master/explore.ipynb) as an example.
 ```python
 from messenger import Messenger
 
@@ -95,9 +95,9 @@ Here's a list of ideas that I considered during the project but have not impleme
 ## Inspiration
 
 I started this project with the following personal goals:
-- practice Object-oriented Programming
+- pratice data wrangling with Python
+- practice object-oriented programming
 - explore my personal Messenger history
-- 
 
 References
 - [Towardsdatascience post](https://towardsdatascience.com/download-and-analyse-your-facebook-messenger-data-6d1b49404e09)
