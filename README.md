@@ -29,13 +29,17 @@ To see what the analysis file will look like, see [here](https://github.com/aosh
 `Insert instructions here`
 3. Within 'messenger_analyse', create a folder called 'personal_data'. Your Facebook data should be in a `.zip` file. Unzip that file here. So your folder structure should look like: 
 messenger_analyse (this repo) > personal_data (folder you created) > facebook-your_name (unzipped facebook folders).
-4. Create a virtual environment and install packages from `requirements.txt`.
+4. Create a virtual environment (optional) and install packages from `requirements.txt`.
 
 
 ## How to use
-
+After you have completed the steps above, you are now ready to run this script.
 ### Run from terminal
-```zsh
+1. Change directory to this cloned repo.
+2. Run `python3 main.py`.
+
+For example:
+```
 (venv) ➜  messenger_analyse git:(master) python3 main.py
 ```
 
@@ -61,19 +65,20 @@ msg.timeseries_all # all time chart
 
 
 ## Future improvements
+Here's a list of ideas that I considered during the project but have not implemented.
 ### Data
 - Emoji clouds
 - Sentimentality
     - Mood by time of the day
-- Median time between messages (to gauge closeness)
-- Number of group chats shared with each person (also to gauge closeness)
+- Closeness between friends
+    - Median time between messages
+    - Number of group chats shared with each person
 - Samples
-    - First message to a person
+    - First message to a friend
 - Net friends over time
 - Calls
 - External data
     - Weather
-- Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)
 - Group chats
     - Unsure how group chats are structured where participants can come and go
 ### Code
