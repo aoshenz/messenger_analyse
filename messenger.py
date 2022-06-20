@@ -11,8 +11,6 @@ class Messenger:
         self.get_metrics()
         self.get_charts()
 
-        return None
-
     def get_data(self):
 
         data_all = utils.import_data(create_new_file=self.clean_run, limit_files=None)
@@ -21,15 +19,11 @@ class Messenger:
         self.data_all = data_all
         self.data_adj = data_adj
 
-        return None
-
     def get_metrics(self):
 
         self.report_details = utils.report_details(self.data_adj)
         self.overview_metrics = utils.overview_metrics(self.data_adj)
         self.hour_day_metrics = utils.hour_day_metrics(self.data_adj)
-
-        return None
 
     def get_charts(self):
 
@@ -52,10 +46,8 @@ class Messenger:
         self.time_of_day = self.plot_timeofday()
 
         # Emojis
-        self.emoji_sent = self.plot_emojis(is_from_me=1)
-        self.emoji_received = self.plot_emojis(is_from_me=0)
-
-        return None
+        self.emoji_cloud_sent = self.plot_emoji_cloud(is_from_me=1)
+        self.emoji_cloud_sent = self.plot_emoji_cloud(is_from_me=0)
 
     def plot_timeseries_all(self):
 
@@ -89,6 +81,6 @@ class Messenger:
 
         return utils.plot_hour_day(self.data_adj)
 
-    def plot_emojis(self, is_from_me=1):
+    def plot_emoji_cloud(self, is_from_me=None):
 
-        return utils.plot_emoji_bar(self.data_adj, is_from_me=is_from_me)
+        return utils.plot_emoji_cloud(self.data_adj, is_from_me=is_from_me)

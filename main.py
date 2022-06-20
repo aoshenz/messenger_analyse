@@ -1,4 +1,3 @@
-from distutils.command.clean import clean
 import utils as utils
 from messenger import Messenger
 import typer
@@ -18,8 +17,6 @@ def main():
         "time_series_1": msg.timeseries_1,
         "time_series_2": msg.timeseries_2,
         "plot_hour_day": msg.time_of_day,
-        "emoji_sent": msg.emoji_sent,
-        "emoji_received": msg.emoji_received,
     }
 
     utils.output_html(

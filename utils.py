@@ -16,6 +16,8 @@ import pkg_resources
 from jinja2 import Template
 from datetime import datetime, timedelta
 from emoji import EMOJI_DATA
+import emojis
+from collections import Counter
 import personal_data.anon as anon  # DELETE
 
 pd.options.mode.chained_assignment = None
@@ -485,49 +487,6 @@ def hour_day_metrics(df):
     return {"hour": hour, "day": day, "timezone": c.TIMEZONE}
 
 
-def wordcloud_plot(df):
-    """Plot a wordcloud"""
-
-    data = df[df["num_words"] > 0]
-
-    text = " ".join(msg for msg in data["content"])
-    print(f"There are {len(text)} words.")
-
-    wordcloud = WordCloud(
-        background_color="white",
-        width=1600,
-        height=800,
-        colormap="Set2",
-        collocations=False,
-    ).generate(text)
-
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    plt.show()
-
-
-def first_msg(df, include_participants=None):
-    """Get the first message from each friend."""
-
-    if include_participants == None:
-        include_participants = rank_msgs(df, top_n=20, is_direct_msg=1)
-
-    standard_fb_msg = [
-        "You can now message and call each other and see info like Active Status and when you've read messages.",
-        "You are now connected on Messenger",
-    ]
-
-    data = df[
-        (df["sender_name"].isin(include_participants))
-        & (df["is_direct_msg"] == 1)
-        & (~df["content"].isin(standard_fb_msg))
-    ]
-
-    first_msg = data.sort_values("date").groupby("sender_name", as_index=False).first()
-
-    return first_msg.to_html(classes="mystyle")
-
-
 # rendering
 def output_html(**kwargs):
     """Creates an html output and opens it."""
@@ -550,101 +509,60 @@ def output_html(**kwargs):
     print(f"Saved to {output_path}")
     os.system(f"open {output_path}")
 
-
-# Table of friends
-# def friends():
-#     inbox_folder = pathlib.Path(__file__).parent.absolute() / "personal_data"
-
-#     for path in pathlib.Path(inbox_folder).rglob("friends.json"):
-#         with open(path) as f:
-#             friends_json = json.load(f)
-
-#     df = pd.DataFrame(friends_json["friends_v2"])
-#     df["name"] = df["name"].apply(lambda x: str(x).encode("latin-1").decode("utf-8"))
-
-#     # # map timestamps TODO: automate correct timezone instead of assuming Sydney
-#     df["date"] = (
-#         pd.to_datetime(df["timestamp"] * 1000, unit="ms")
-#         .dt.tz_localize("UTC")
-#         .dt.tz_convert("Australia/Sydney")
-#     )
-
-#     keep = ["name", "date"]
-#     df = df[keep]
-
-#     return df
-
-
-# def friends_plot():
-
-#     data = friends()
-
-#     data["date_mth"] = data["date"].dt.date.apply(lambda x: x.replace(day=1))
-
-#     data = data.groupby("date_mth", as_index=False)["name"].count()
-
-#     fig = px.bar(
-#         data,
-#         x="date_mth",
-#         y="name",
-#         labels={"date_mth": "Date", "name": "Number of new friends"},
-#     )
-
-#     return fig.to_html(full_html=False, include_plotlyjs=True)
-
-
-# Interesting stats
-# def interesting_stats(data):
-
-#     data = friends()
-
-#     # friends TODO: this doesn't reconcile??
-#     num_friends = len(data)
-#     first_friend = data[data["date"] == data["date"].min()]["name"].iloc[0]
-
-#     None
-
-
-def emoji_counter(df, is_from_me=None):
+# emojis
+def plot_emoji_cloud(df, is_from_me=None):
 
     data = df[df["has_emoji"] == 1]
 
     if is_from_me != None:
-        data = data[data["is_from_me"] == is_from_me]
+        data = data[data['is_from_me']==is_from_me]
+        file_path = './output/emoji_cloud_' + str(is_from_me) + '.png'
+        if is_from_me == 1:
+            header = 'From you'
+        elif is_from_me == 0:
+            header = 'From others'
+    else:
+        file_path = './output/emoji_cloud_all.png'
+        header = 'All messages'
 
-    emoji_count = (
-        data["emojis"]
-        .str.split(expand=True)
-        .stack()
-        .value_counts()
-        .rename_axis("emoji")
-        .reset_index(name="count")
+    emoji_text = " ".join(msg for msg in data["emojis"])
+
+    emoji_frequencies = Counter(emojis.iter(emoji_text))
+    wordcloud = WordCloud(
+        font_path="./data/NotoEmoji-Regular.ttf",
+        background_color="white",
+        width=1600,
+        height=800,
+        colormap="Set2",
+        collocations=False
     )
 
-    return emoji_count
+    wordcloud.generate_from_frequencies(emoji_frequencies)
+
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.tight_layout(pad=0)
+    plt.title(header)
+    plt.savefig(file_path, format='png', dpi=300)
 
 
-def plot_emoji_bar(df, is_from_me=None, top_n=20):
+# text wordcloud
+def wordcloud_plot(df):
+    """Plot a wordcloud"""
 
-    emoji_count = emoji_counter(df=df, is_from_me=is_from_me)
-    emoji_count = emoji_count.head(top_n)
+    data = df[df["num_words"] > 0]
 
-    if is_from_me == 1:
-        header = "From you"
-    elif is_from_me == 0:
-        header = "From others"
+    text = " ".join(msg for msg in data["content"])
+    print(f"There are {len(text)} words.")
 
-    fig = px.bar(
-        emoji_count,
-        x="count",
-        y="emoji",
-        orientation="h",
-        title=header,
-        labels={"emoji": ""},
-    )
+    wordcloud = WordCloud(
+        background_color="white",
+        width=1600,
+        height=800,
+        colormap="Set2",
+        collocations=False,
+    ).generate(text)
 
-    fig.update_yaxes(dtick=1)
-    fig.update_layout(yaxis={"categoryorder": "total ascending"})
-    fig.update_layout(layout)
-
-    return fig.to_html(full_html=False, include_plotlyjs=True)
+    plt.imshow(wordcloud, interpolation="bilinear")
+    plt.axis("off")
+    plt.show()

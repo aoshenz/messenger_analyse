@@ -18,20 +18,19 @@ It does this by reading in your Messenger data locally and produces a `html` fil
 1. Go to your Facebook [settings](https://www.facebook.com/dyi/?referrer=yfi_settings) > 'Your Facebook Information' > 'Download Your Information' and at a minimum you need to choose these options:
     - File optins in JSON format
     - All time date range
-    - Check the boxes for 'Messages', 'Profile information' and 'Friends and followers'
+    - Check the boxes for 'Messages' and 'Profile information'
 
     It takes up to a few days for Facebook to gather this information before you can download it.
 <div align="center">
 <img src="images/fb_json.png" alt="drawing" width="600"/>
 <img src="images/fb_msg.png" alt="drawing" width="600"/>
 <img src="images/fb_profile.png" alt="drawing" width="600"/>
-<img src="images/fb_friends.png" alt="drawing" width="600"/>
 </div>
 
 
 2. Meanwhile, clone this repository.
 `Insert instructions here`
-3. Within 'messenger_analyse', create a folder called 'personal_data'. Your Facebook data should be in a `.zip` file. Unzip that file here. So your folder structure should look like: 
+3. Within `messenger_analyse`, create a folder called `personal_data`. Your Facebook data should be in a `.zip` file. Unzip that file here. So your folder structure should look like: 
 messenger_analyse (this repo) > personal_data (folder you created) > facebook-your_name (unzipped facebook folders).
 4. Create a virtual environment (optional) and install packages from `requirements.txt`.
 5. In `config.py`, you can adjust parameters such as which time period of data to use, your local timezone (default: Sydney), moving average days and so on.
