@@ -35,8 +35,8 @@ messenger_analyse (this repo) > personal_data (folder you created) > facebook-yo
 ## How to use
 
 ### Run from terminal
-```python
-Sample terminal code here.
+```zsh
+(venv) ➜  messenger_analyse git:(master) python3 main.py
 ```
 
 ### Run from notebook
