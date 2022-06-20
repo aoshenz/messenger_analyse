@@ -10,7 +10,7 @@ import json
 import numpy as np
 import time
 import config as c
-from wordcloud import WordCloud
+from wordcloud import WordCloud, STOPWORDS
 import os
 import pkg_resources
 from jinja2 import Template
@@ -509,21 +509,22 @@ def output_html(**kwargs):
     print(f"Saved to {output_path}")
     os.system(f"open {output_path}")
 
+
 # emojis
 def plot_emoji_cloud(df, is_from_me=None):
 
     data = df[df["has_emoji"] == 1]
 
     if is_from_me != None:
-        data = data[data['is_from_me']==is_from_me]
-        file_path = './output/emoji_cloud_' + str(is_from_me) + '.png'
+        data = data[data["is_from_me"] == is_from_me]
+        file_path = "./output/emoji_cloud_" + str(is_from_me) + ".png"
         if is_from_me == 1:
-            header = 'From you'
+            header = "From you"
         elif is_from_me == 0:
-            header = 'From others'
+            header = "From others"
     else:
-        file_path = './output/emoji_cloud_all.png'
-        header = 'All messages'
+        file_path = "./output/emoji_cloud_all.png"
+        header = "All messages"
 
     emoji_text = " ".join(msg for msg in data["emojis"])
 
@@ -534,7 +535,7 @@ def plot_emoji_cloud(df, is_from_me=None):
         width=1600,
         height=800,
         colormap="Set2",
-        collocations=False
+        collocations=False,
     )
 
     wordcloud.generate_from_frequencies(emoji_frequencies)
@@ -543,26 +544,46 @@ def plot_emoji_cloud(df, is_from_me=None):
     plt.axis("off")
     plt.tight_layout(pad=0)
     plt.title(header)
-    plt.savefig(file_path, format='png', dpi=300)
+    plt.savefig(file_path, format="png", dpi=300)
 
 
 # text wordcloud
-def wordcloud_plot(df):
+def plot_text_cloud(df, is_from_me=None):
     """Plot a wordcloud"""
 
     data = df[df["num_words"] > 0]
 
+    if is_from_me != None:
+        data = data[data["is_from_me"] == is_from_me]
+        file_path = "./output/text_cloud_" + str(is_from_me) + ".png"
+        if is_from_me == 1:
+            header = "From you"
+        elif is_from_me == 0:
+            header = "From others"
+    else:
+        file_path = "./output/text_cloud_all.png"
+        header = "All messages"
+
     text = " ".join(msg for msg in data["content"])
-    print(f"There are {len(text)} words.")
+
+    my_stopwords = list(map(chr, range(97, 123))) + [
+        "nan"
+    ]  # add letters of the alphabet
+    custom_stopwords = STOPWORDS.update(my_stopwords)
 
     wordcloud = WordCloud(
+        stopwords=custom_stopwords,
         background_color="white",
         width=1600,
         height=800,
         colormap="Set2",
         collocations=False,
-    ).generate(text)
+    )
+
+    wordcloud.generate(text)
 
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
-    plt.show()
+    plt.tight_layout(pad=0)
+    plt.title(header)
+    plt.savefig(file_path, format="png", dpi=300)

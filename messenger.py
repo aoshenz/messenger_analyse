@@ -47,7 +47,11 @@ class Messenger:
 
         # Emojis
         self.emoji_cloud_sent = self.plot_emoji_cloud(is_from_me=1)
-        self.emoji_cloud_sent = self.plot_emoji_cloud(is_from_me=0)
+        self.emoji_cloud_received = self.plot_emoji_cloud(is_from_me=0)
+
+        # Word cloud
+        self.word_cloud_sent = self.plot_text_cloud(is_from_me=1)
+        self.word_cloud_received = self.plot_text_cloud(is_from_me=0)
 
     def plot_timeseries_all(self):
 
@@ -84,3 +88,7 @@ class Messenger:
     def plot_emoji_cloud(self, is_from_me=None):
 
         return utils.plot_emoji_cloud(self.data_adj, is_from_me=is_from_me)
+
+    def plot_text_cloud(self, is_from_me=None):
+
+        return utils.plot_text_cloud(self.data_adj, is_from_me=is_from_me)
