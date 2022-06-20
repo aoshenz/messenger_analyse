@@ -178,6 +178,7 @@ def apply_adjustments(df):
 
     # Keep only 'Messages'
     data = data[data["type"] == "Generic"]
+    data = data[~data["content"].str.startswith("Reacted ")] # Remove messages like "Reacted \u1234 to your message"
 
     # flags
     name = full_name()
@@ -567,8 +568,8 @@ def plot_text_cloud(df, is_from_me=None):
     text = " ".join(msg for msg in data["content"])
 
     my_stopwords = list(map(chr, range(97, 123))) + [
-        "nan"
-    ]  # add letters of the alphabet
+        "nan", "ll"
+    ]  # add letters of the alphabet and other custom words
     custom_stopwords = STOPWORDS.update(my_stopwords)
 
     wordcloud = WordCloud(
