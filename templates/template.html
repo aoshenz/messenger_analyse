@@ -106,7 +106,7 @@
 
   <div class="content0">
 
-    <h1><b>All time activity</b></h1>
+    <h1><b>&#127941; All time activity</b></h1>
     <p>When were you most active on Messenger?</p>
     {{ charts.time_series_all }}
 
@@ -122,7 +122,7 @@
 
   <div class="content1">
 
-    <h1><b>Favourite friends</b></h1>
+    <h1><b>&#128120; Favourite friends</b></h1>
     <p>Which friends do you talk to most?</p>
 
     <div class="row">
@@ -137,7 +137,7 @@
   </div>
 
   <div class="content2">
-    <h1><b>Trends</b></h1>
+    <h1><b>&#128200; Trends</b></h1>
     <p>How much have you talked to each friend over the years?</p>
     {{ charts.time_series_1 }}
     <br>
@@ -162,7 +162,7 @@
 
   <div class="content3">
 
-    <h1><b>Activity by the hour</b></h1>
+    <h1><b>&#127764; Activity by the hour</b></h1>
     <p>
       Your most active hour of the week is <b>{{ hour_day_metrics.hour }} on {{ hour_day_metrics.day }}s</b>.
     </p>
@@ -179,18 +179,18 @@
 
     <p>
       <h2><b>Definitions</b></h2> <br>
-      <b>Messages</b>: each individual block of text sent in Messenger (i.e. when you hit enter/send). This is loosely defined and may contain other elements e.g. audio calls. <br>
-      <b>Words</b>: text or emojis that are separated by a space. These do not need to be actual words.
+      <b>Messages</b>: each individual block of text sent in Messenger (i.e. when you hit enter/send).<br>
+      <b>Words</b>: text or emojis that are separated by a space. These do not need to be real words.
 
       <br> <br>
     </p>
 
     <p>
       <h2><b>Note</b></h2> <br>
-      All line graphs use a rolling {{ report_details.ma_days }} day average to smooth out the trends. This can be adjusted in config.py. <br>
+      All line graphs use a rolling {{ report_details.ma_days }} day average to smooth out the trends. This is based on settings in config.py. <br>
       You can also adjust the date range for the analysis. For example, you can focus on a particular year. Also in config.py.<br>
       Most of the graphs are interactive. You can select values to include in the legend, zoom into particular regions and so on. <br>
-      Some data from Messenger may be missing.(There is an issue with Meta sharing all of your data.)
+      Some data from Messenger may be missing. (There is an issue with Meta sharing all of your data.)
 
       <br> <br>
     </p>
@@ -200,6 +200,7 @@
       Run datetime: {{ report_details.now }} <br>
       Data from: {{ report_details.date_min }} <br>
       Data until: {{ report_details.date_max }} <br>
+      Timezone: {{ hour_day_metrics.timezone }} <br>
       Moving average: {{ report_details.ma_days }} days <br>
     </p>
 

@@ -133,7 +133,7 @@ def import_data(create_new_file=False, limit_files=None):
     df["datetime"] = (
         pd.to_datetime(df["timestamp_ms"], unit="ms")
         .dt.tz_localize("UTC")
-        .dt.tz_convert("Australia/Sydney")
+        .dt.tz_convert(c.TIMEZONE)
     )
     df.drop("timestamp_ms", inplace=True, axis=1)
 
@@ -482,7 +482,7 @@ def hour_day_metrics(df):
 
     day = df_msg_count.iloc[0, 1]
 
-    return {"hour": hour, "day": day}
+    return {"hour": hour, "day": day, "timezone": c.TIMEZONE}
 
 
 def wordcloud_plot(df):

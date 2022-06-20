@@ -34,22 +34,31 @@ messenger_analyse (this repo) > personal_data (folder you created) > facebook-yo
 
 ## How to use
 
+### Run from terminal
 ```python
 Sample terminal code here.
 ```
 
+### Run from notebook
+The `Messenger` class contains methods and attributes allowing you to do further exploration. The code below is an example of some useful attributes to help you get started.
 ```python
-Sample code here.
+from messenger import Messenger
+
+msg = Messenger()
+msg.analyse()
+
+# Data
+msg.data_all # data before adjustments
+msg.data_adj # data after adjustments i.e. date filter, some flags
+
+# Metrics
+msg.report_details # configurations
+msg.overview_metrics # data metrics
+
+# Charts
+msg.timeseries_all # all time chart
 ```
 
-### Definitions
-- Words
-- Messages
-- Started conversation e.g. a new conversation is when there's 0 messages between friends for 24 hrs
-
-### Limitations
-- Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)
-- Unsure how group chats are structured where participants can come and go
 
 ## Future improvements
 ### Data
@@ -59,11 +68,14 @@ Sample code here.
 - Median time between messages (to gauge closeness)
 - Number of group chats shared with each person (also to gauge closeness)
 - Samples
-    - First message to a person!
+    - First message to a person
 - Net friends over time
 - Calls
 - External data
     - Weather
+- Assumes Sydney timezone for all messages (i.e. converts UTC to Sydney time)
+- Group chats
+    - Unsure how group chats are structured where participants can come and go
 ### Code
 - Logging to console
 - Error handling

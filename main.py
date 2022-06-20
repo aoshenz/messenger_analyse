@@ -9,7 +9,7 @@ app = typer.Typer()
 @app.command()
 def main():
 
-    msg = Messenger()
+    msg = Messenger(clean_run=False)
     msg.analyse()
 
     charts = {
