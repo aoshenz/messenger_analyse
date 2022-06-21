@@ -10,7 +10,7 @@ It does this by reading in your Messenger data locally and produces a `html` fil
 
 <div align="center">
 <img src="images/all_time_activity.png" alt="drawing" width="800"/>
-<img src="images/emojis.png" alt="drawing" width="600"/>
+<img src="images/emojis.png" alt="drawing" width="400"/>
 </div>
 
 ## How to set up
