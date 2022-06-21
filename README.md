@@ -10,7 +10,7 @@ It does this by reading in your Messenger data locally and produces a `html` fil
 
 <div align="center">
 <img src="images/all_time_activity.png" alt="drawing" width="800"/>
-<img src="images/emojis.png" alt="drawing" width="400"/>
+<img src="images/emojis.png" alt="drawing" width="600"/>
 </div>
 
 ## How to set up
@@ -53,7 +53,7 @@ For example, it should look something like this:
 ```
 
 ### Run from notebook
-The `Messenger` class contains methods and attributes which allow you to do further exploration. The code below is an example of some useful attributes to help you get started. See [explore.ipynb](https://github.com/aoshenz/messenger_analyse/blob/master/explore.ipynb) as a Jupyter Notebook example.
+The `Messenger` class contains methods and attributes which allow you to do further exploration. The code below is an example of some useful attributes to help you get started. See [explore.ipynb](https://github.com/aoshenz/messenger_analyse/blob/master/example/explore.ipynb) as a Jupyter Notebook example.
 ```python
 from messenger import Messenger
 
