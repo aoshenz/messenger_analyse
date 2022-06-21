@@ -27,5 +27,6 @@ def main():
         report_details=msg.report_details,
     )
 
+
 if __name__ == "__main__":
     app()

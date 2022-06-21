@@ -178,7 +178,9 @@ def apply_adjustments(df):
 
     # Keep only 'Messages'
     data = data[data["type"] == "Generic"]
-    data = data[~data["content"].str.startswith("Reacted ")] # Remove messages like "Reacted \u1234 to your message"
+    data = data[
+        ~data["content"].str.startswith("Reacted ")
+    ]  # Remove messages like "Reacted \u1234 to your message"
 
     # flags
     name = full_name()
@@ -412,11 +414,11 @@ def plot_msgs_barh(df, top_n=20, is_direct_msg=None):
 
     title = 0
     if is_direct_msg == None:
-        title = "DMs & group chats (top " + str(top_n) + ")"
+        title = "DMs & group chats"
     elif is_direct_msg == 1:
-        title = "DMs only (top " + str(top_n) + ")"
+        title = "DMs only"
     elif is_direct_msg == 0:
-        title = "Group chats only (top " + str(top_n) + ")"
+        title = "Group chats only"
 
     fig = px.bar(
         summary,
@@ -568,7 +570,8 @@ def plot_text_cloud(df, is_from_me=None):
     text = " ".join(msg for msg in data["content"])
 
     my_stopwords = list(map(chr, range(97, 123))) + [
-        "nan", "ll"
+        "nan",
+        "ll",
     ]  # add letters of the alphabet and other custom words
     custom_stopwords = STOPWORDS.update(my_stopwords)
 
