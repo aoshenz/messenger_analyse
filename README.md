@@ -9,7 +9,7 @@ The goal of this simple package is to enable you to understand your Facebook Mes
 It does this by reading in your Messenger data locally and produces a `html` file, allowing you to explore your data. To see what the analysis file will look like, see [here](https://github.com/aoshenz/messenger_analyse/blob/master/example/output_example.html) for an example. Below are some snippets from this file.
 
 <div align="center">
-<img src="images/alltimeactivity.png" alt="drawing" width="800"/>
+<img src="images/all_time_activity.png" alt="drawing" width="800"/>
 <img src="images/emojis.png" alt="drawing" width="800"/>
 </div>
 
