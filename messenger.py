@@ -40,7 +40,7 @@ class Messenger:
 
         # Bar chart
         self.bar_chart_1 = self.plot_barchart(is_direct_msg=1)
-        self.bar_chart_2 = self.plot_barchart(is_direct_msg=1)
+        self.bar_chart_2 = self.plot_barchart(is_direct_msg=0)
 
         # Time of day
         self.time_of_day = self.plot_timeofday()

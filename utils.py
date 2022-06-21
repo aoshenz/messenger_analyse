@@ -1,7 +1,3 @@
-from ast import Pass
-from lib2to3.pgen2.pgen import DFAState
-from unicodedata import category
-from xml.etree.ElementInclude import include
 import matplotlib.pyplot as plt
 import plotly.express as px
 import pathlib
@@ -18,7 +14,6 @@ from datetime import datetime, timedelta
 from emoji import EMOJI_DATA
 import emojis
 from collections import Counter
-import personal_data.anon as anon  # DELETE
 
 pd.options.mode.chained_assignment = None
 pd.set_option("display.max_rows", 100)
@@ -63,7 +58,6 @@ def full_name():
         with open(path) as f:
             data = json.load(f)
 
-    return "Eren Yaeger"  # DELETE
     return data["profile_v2"]["name"]["full_name"]
 
 
@@ -172,9 +166,6 @@ def apply_adjustments(df):
     """Filters data based on dates selected in config."""
 
     data = df.copy()
-
-    # Remap names # DELETE
-    data["sender_name"].replace(anon.mapping, inplace=True)
 
     # Keep only 'Messages'
     data = data[data["type"] == "Generic"]
