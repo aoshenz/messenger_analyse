@@ -10,7 +10,7 @@ It does this by reading in your Messenger data locally and produces a `html` fil
 
 <div align="center">
 <img src="images/all_time_activity.png" alt="drawing" width="800"/>
-<img src="images/emojis.png" alt="drawing" width="800"/>
+<img src="images/emojis.png" alt="drawing" width="600"/>
 </div>
 
 ## How to set up
@@ -27,12 +27,17 @@ It does this by reading in your Messenger data locally and produces a `html` fil
 </div>
 
 
-2. Meanwhile, clone this repository. Using your terminal: `git clone https://github.com/aoshenz/messenger_analyse.git`
+2. Meanwhile, clone this repository. Using your terminal:
+```
+git clone https://github.com/aoshenz/messenger_analyse.git
+```
 3. Within `messenger_analyse`, create a folder called `personal_data`. When your Facebook data is ready. Download it and unzip it in this folder. So your folder structure should look like: 
 ```
-messenger_analyse (this repo) > personal_data (folder you created) > facebook-your_name (unzipped facebook data)
+messenger_analyse (this repo)
+ - personal_data (folder you created)
+ -- facebook-your_name (unzipped facebook data)
 ```
-4. Create a virtual environment (optional) and install packages from `requirements.txt`. Using your terminal, change directory to `messenger_analyse` and run `pip install -r requirements.txt`.
+4. Create a virtual environment (optional) and install dependencies from `requirements.txt`. Using your terminal, change directory to `messenger_analyse` and run `pip install -r requirements.txt`.
 5. In `config.py`, you can adjust parameters such as which time period of data to use, your local timezone (default: Sydney), moving average days and so on.
 
 
