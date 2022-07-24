@@ -6,7 +6,7 @@ The goal of this simple package is to enable you to understand your Facebook Mes
 - What are my favourite emojis?
 - What hours of the day and week am I most active?
 
-It does this by reading in your Messenger data locally and produces a `html` file, allowing you to explore your data. To see what the analysis file will look like, see [here](https://github.com/aoshenz/messenger_analyse/blob/master/example/output_example.html) for an example. Below are some snippets from this file.
+It does this by reading in your Messenger data locally and produces a `html` file, allowing you to explore your data. Below are some snippets from this file.
 
 <div align="center">
 <img src="images/all_time_activity.png" alt="drawing" width="800"/>
